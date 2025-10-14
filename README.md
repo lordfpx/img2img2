@@ -23,6 +23,18 @@ L'application est disponible sur [http://localhost:5173](http://localhost:5173).
 
 > ℹ️ **Astuce** : dans certains environnements restreints (par exemple cette sandbox), `npm install` peut échouer avec une erreur `403 Forbidden` lors de l'accès au registre npm. Dans ce cas, réessayez depuis un poste disposant d'un accès internet ou configurez un registre privé/miroir autorisé.
 
+## Synchroniser avec la branche `main`
+
+Si vous devez récupérer les dernières modifications depuis `main` et qu'aucun remote n'est configuré, ajoutez d'abord l'URL du dépôt GitHub :
+
+```bash
+git remote add origin <URL_DU_DEPOT>
+git fetch origin
+git pull origin main
+```
+
+Vérifiez ensuite l'absence de conflits puis poussez vos changements si nécessaire.
+
 ## Build de production
 
 ```bash
