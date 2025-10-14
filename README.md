@@ -33,6 +33,13 @@ git fetch origin
 git pull origin main
 ```
 
+Sans cette configuration préalable, la commande `git pull origin main` renverra l'erreur :
+
+```
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+```
+
 Vérifiez ensuite l'absence de conflits puis poussez vos changements si nécessaire.
 
 ## Build de production
