@@ -1,6 +1,6 @@
 # Img2Img Converter
 
-Application web développée avec React et Vite pour convertir rapidement plusieurs images vers différents formats (JPEG, PNG, WebP, GIF et SVG) directement dans le navigateur.
+Application web développée avec React et Vite pour convertir rapidement plusieurs images vers différents formats (JPEG, PNG, WebP, GIF et SVG) directement dans le navigateur. Ce projet fournit un service web minimaliste et efficace, conçu pour fonctionner entièrement côté client.
 
 ## Fonctionnalités
 
@@ -47,8 +47,18 @@ npm run deploy
 
 Le script construit l'application avec la configuration adaptée à GitHub Pages puis pousse le contenu du dossier `dist` sur la branche `gh-pages`.
 
+## Bonnes pratiques
+
+- Optimisez les images avant de les importer pour améliorer la qualité du rendu final.
+- Prévoyez un fallback pour les navigateurs qui ne supportent pas WebP.
+- Activez un suivi analytique pour comprendre quels formats sont les plus utilisés.
+
 ## Remarques
 
 - Les conversions sont réalisées entièrement dans le navigateur sans transfert de données vers un serveur.
 - Le format SVG généré encapsule l'image rasterisée dans un conteneur SVG pour garantir une compatibilité maximale.
 - La conversion vers GIF crée un GIF statique (un seul frame) optimisé pour les images importées.
+
+## Licence
+
+MIT
