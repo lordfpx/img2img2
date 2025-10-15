@@ -6,16 +6,26 @@ import { ConversionItem as ConversionItemType, formatOptions } from '@/types/con
 
 interface ConversionItemProps {
   item: ConversionItemType;
+  globalQuality: number;
   onFormatChange: (id: string, format: OutputFormat) => void;
   onQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
+  onUseGlobalQualityChange: (id: string, useGlobal: boolean) => void;
   onSplitChange: (id: string, value: number) => void;
   onRemove: (id: string) => void;
 }
 
-export const ConversionItem = ({ item, onFormatChange, onQualityChange, onSplitChange, onRemove }: ConversionItemProps) => {
+export const ConversionItem = ({
+  item,
+  globalQuality,
+  onFormatChange,
+  onQualityChange,
+  onUseGlobalQualityChange,
+  onSplitChange,
+  onRemove,
+}: ConversionItemProps) => {
   const convertedSize = item.convertedBlob?.size ?? null;
   const formatLabel = formatOptions.find((option) => option.value === item.targetFormat)?.label ?? item.targetFormat;
-  const qualityDisabled = item.targetFormat === 'svg';
+  const qualityDisabled = item.targetFormat === 'svg' || item.usesGlobalQuality;
   const delta = convertedSize !== null ? item.originalSize - convertedSize : null;
   const gainRatio = delta !== null && item.originalSize > 0 ? (delta / item.originalSize) * 100 : null;
 
@@ -44,22 +54,35 @@ export const ConversionItem = ({ item, onFormatChange, onQualityChange, onSplitC
                 ))}
               </select>
             </label>
-            <label className="flex items-center gap-2 text-sm text-slate-300">
-              Qualité
-              <input
-                type="range"
-                min={30}
-                max={100}
-                step={1}
-                value={item.quality}
-                disabled={qualityDisabled}
-                onChange={(event) => onQualityChange(item.id, event)}
-                className="h-1 w-32 cursor-pointer appearance-none rounded-full bg-slate-700 disabled:cursor-not-allowed"
-              />
-              <span className="w-10 text-right text-xs text-slate-400">
-                {qualityDisabled ? 'N/A' : `${item.quality}`}
-              </span>
-            </label>
+            <div className="flex flex-col items-start gap-2 text-sm text-slate-300 sm:flex-row sm:items-center">
+              <label className="flex items-center gap-2">
+                Qualité
+                <input
+                  type="range"
+                  min={30}
+                  max={100}
+                  step={1}
+                  value={item.quality}
+                  disabled={qualityDisabled}
+                  onChange={(event) => onQualityChange(item.id, event)}
+                  className="h-1 w-32 cursor-pointer appearance-none rounded-full bg-slate-700 disabled:cursor-not-allowed"
+                />
+                <span className="w-10 text-right text-xs text-slate-400">
+                  {item.targetFormat === 'svg' ? 'N/A' : `${item.quality}`}
+                </span>
+              </label>
+              {item.targetFormat !== 'svg' && (
+                <label className="flex items-center gap-2 text-xs text-slate-400">
+                  <input
+                    type="checkbox"
+                    checked={item.usesGlobalQuality}
+                    onChange={(event) => onUseGlobalQualityChange(item.id, event.target.checked)}
+                    className="h-4 w-4 rounded border border-white/10 bg-slate-950 text-brand-500 focus:ring-brand-500"
+                  />
+                  Utiliser la compression globale ({globalQuality})
+                </label>
+              )}
+            </div>
             <button
               type="button"
               onClick={() => onRemove(item.id)}

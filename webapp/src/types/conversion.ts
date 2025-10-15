@@ -10,6 +10,7 @@ export interface ConversionItem {
   status: 'idle' | 'processing' | 'done' | 'error';
   targetFormat: OutputFormat;
   quality: number;
+  usesGlobalQuality: boolean;
   error?: string;
   compareSplit: number;
   width?: number;

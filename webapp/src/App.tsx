@@ -6,9 +6,11 @@ import { Header } from '@/components/Header';
 import { FileUpload } from '@/components/FileUpload';
 import { ConversionStats } from '@/components/ConversionStats';
 import { ConversionItem } from '@/components/ConversionItem';
+import { GlobalQualityControl } from '@/components/GlobalQualityControl';
 
 const App = () => {
   const [items, setItems] = useState<ConversionItemType[]>([]);
+  const [globalQuality, setGlobalQuality] = useState(defaultQuality('webp'));
   const itemsRef = useRef<ConversionItemType[]>([]);
 
   useEffect(() => {
@@ -64,7 +66,10 @@ const App = () => {
   }, []);
 
   const scheduleConversion = useCallback(
-    (id: string, overrides?: Partial<Pick<ConversionItemType, 'targetFormat' | 'quality'>>) => {
+    (
+      id: string,
+      overrides?: Partial<Pick<ConversionItemType, 'targetFormat' | 'quality' | 'usesGlobalQuality'>>,
+    ) => {
       setItems((prev) => {
         const next = prev.map((item) => {
           if (item.id !== id) return item;
@@ -90,7 +95,7 @@ const App = () => {
       Array.from(files).forEach((file) => {
         const originalUrl = URL.createObjectURL(file);
         const targetFormat: OutputFormat = 'webp';
-        const quality = defaultQuality(targetFormat);
+        const quality = globalQuality;
         const job: ConversionItemType = {
           id: createId(),
           file,
@@ -98,6 +103,7 @@ const App = () => {
           originalSize: file.size,
           targetFormat,
           quality,
+          usesGlobalQuality: true,
           status: 'processing',
           compareSplit: 50,
         };
@@ -106,7 +112,7 @@ const App = () => {
       });
       setItems((prev) => [...prev, ...additions]);
     },
-    [runConversion],
+    [globalQuality, runConversion],
   );
 
   const removeItem = useCallback(
@@ -131,18 +137,59 @@ const App = () => {
 
   const handleFormatChange = useCallback(
     (id: string, format: OutputFormat) => {
-      const baseQuality = defaultQuality(format);
-      scheduleConversion(id, { targetFormat: format, quality: baseQuality });
+      const current = itemsRef.current.find((item) => item.id === id);
+      const shouldUseGlobal = format !== 'svg' && (current?.usesGlobalQuality ?? true);
+      const baseQuality = format === 'svg' ? 100 : shouldUseGlobal ? globalQuality : defaultQuality(format);
+      scheduleConversion(id, {
+        targetFormat: format,
+        quality: baseQuality,
+        usesGlobalQuality: shouldUseGlobal,
+      });
     },
-    [scheduleConversion],
+    [globalQuality, scheduleConversion],
   );
 
   const handleQualityChange = useCallback(
     (id: string, event: ChangeEvent<HTMLInputElement>) => {
       const quality = Number(event.target.value);
-      scheduleConversion(id, { quality });
+      scheduleConversion(id, { quality, usesGlobalQuality: false });
     },
     [scheduleConversion],
+  );
+
+  const handleUseGlobalQualityChange = useCallback(
+    (id: string, useGlobal: boolean) => {
+      const current = itemsRef.current.find((item) => item.id === id);
+      const nextQuality = useGlobal
+        ? globalQuality
+        : current?.quality ?? (current ? defaultQuality(current.targetFormat) : globalQuality);
+      scheduleConversion(id, {
+        quality: nextQuality,
+        usesGlobalQuality: useGlobal,
+      });
+    },
+    [globalQuality, scheduleConversion],
+  );
+
+  const handleGlobalQualityChange = useCallback(
+    (value: number) => {
+      setGlobalQuality(value);
+      setItems((prev) => {
+        const next = prev.map((item) => {
+          if (item.targetFormat === 'svg' || !item.usesGlobalQuality) return item;
+          const updated: ConversionItemType = {
+            ...item,
+            quality: value,
+            status: 'processing',
+            error: undefined,
+          };
+          queueMicrotask(() => runConversion(updated));
+          return updated;
+        });
+        return next;
+      });
+    },
+    [runConversion],
   );
 
   const handleSplitChange = useCallback((id: string, value: number) => {
@@ -178,6 +225,10 @@ const App = () => {
 
       <main className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
         <section>
+          <GlobalQualityControl value={globalQuality} onChange={handleGlobalQualityChange} />
+        </section>
+
+        <section>
           <FileUpload onFilesSelected={handleFiles} />
         </section>
 
@@ -201,8 +252,10 @@ const App = () => {
             <ConversionItem
               key={item.id}
               item={item}
+              globalQuality={globalQuality}
               onFormatChange={handleFormatChange}
               onQualityChange={handleQualityChange}
+              onUseGlobalQualityChange={handleUseGlobalQualityChange}
               onSplitChange={handleSplitChange}
               onRemove={removeItem}
             />
