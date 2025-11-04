@@ -23,7 +23,6 @@ export const formatOptions: { value: OutputFormat; label: string }[] = [
 	{ value: "png", label: "PNG (.png)" },
 	{ value: "webp", label: "WebP (.webp)" },
 	{ value: "gif", label: "GIF (.gif)" },
-	{ value: "svg", label: "SVG (.svg)" },
 ];
 
 export const defaultQuality = (format: OutputFormat) => {
