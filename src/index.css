@@ -1,15 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-	color-scheme: light;
-}
+@import "tailwindcss";
 
 body {
 	@apply bg-gray-100 text-gray-900 antialiased;
-}
-
-#root {
-	min-height: 100vh;
 }

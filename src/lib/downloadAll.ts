@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 
-import { type ConversionItem } from "@/types/conversion";
+import type { ConversionItem } from "@/types/conversion";
 
 const buildFilename = (item: ConversionItem) => {
 	const baseName = item.file.name.replace(/\.[^.]+$/, "");

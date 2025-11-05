@@ -1,14 +1,15 @@
-import type { ReactNode } from "react";
+import clsx from "clsx";
+import type { ElementType, ReactNode } from "react";
 
 interface SimpleTitleProps {
 	children: ReactNode;
-	as?: keyof JSX.IntrinsicElements;
+	as?: ElementType;
 	className?: string;
 }
 
 export const SimpleTitle = ({ children, as: Component = "h2", className }: SimpleTitleProps) => {
 	return (
-		<Component className={"text-lg font-medium text-gray-900" + (className ? ` ${className}` : "")}>
+		<Component className={clsx("text-lg font-medium text-gray-900", className)}>
 			{children}
 		</Component>
 	);

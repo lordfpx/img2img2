@@ -17,7 +17,8 @@ export const SimpleField = ({
 	className,
 }: SimpleFieldProps) => {
 	return (
-		<label
+		// biome-ignore lint/a11y/noLabelWithoutControl: TODO
+<label
 			className={clsx(
 				"text-sm text-gray-700",
 				direction === "row" ? "flex items-center gap-2" : "flex flex-col gap-2",

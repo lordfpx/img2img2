@@ -2,8 +2,8 @@ import type { ChangeEvent } from "react";
 
 import { ConversionItem } from "@/components/ConversionItem";
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
-import { type OutputFormat } from "@/lib/imageConversion";
-import { type ConversionItem as ConversionItemType } from "@/types/conversion";
+import type { OutputFormat } from "@/lib/imageConversion";
+import type { ConversionItem as ConversionItemType } from "@/types/conversion";
 
 interface ConversionListProps {
 	items: ConversionItemType[];
