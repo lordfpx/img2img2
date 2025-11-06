@@ -9,7 +9,7 @@ interface SimpleTitleProps {
 
 export const SimpleTitle = ({ children, as: Component = "h2", className }: SimpleTitleProps) => {
 	return (
-		<Component className={clsx("text-lg font-medium text-gray-900", className)}>
+		<Component className={clsx("text-2xl font-bold text-gray-900", className)}>
 			{children}
 		</Component>
 	);

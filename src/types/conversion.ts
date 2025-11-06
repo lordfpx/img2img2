@@ -1,4 +1,8 @@
-import type { OutputFormat } from "@/lib/imageConversion";
+import type {
+	GifConversionOptions,
+	OutputFormat,
+	PngConversionOptions,
+} from "@/lib/imageConversion";
 
 export interface ConversionItem {
 	id: string;
@@ -12,6 +16,8 @@ export interface ConversionItem {
 	quality: number;
 	usesGlobalQuality: boolean;
 	usesGlobalFormat: boolean;
+	gifOptions: GifConversionOptions;
+	pngOptions: PngConversionOptions;
 	error?: string;
 	compareSplit: number;
 	width?: number;
@@ -37,3 +43,19 @@ export const defaultQuality = (format: OutputFormat) => {
 			return 100;
 	}
 };
+
+export const createDefaultGifOptions = (): GifConversionOptions => ({
+	colorCount: 128,
+	dithering: "none",
+	preserveAlpha: true,
+	backgroundColor: "#ffffff",
+	loopCount: 0,
+});
+
+export const createDefaultPngOptions = (): PngConversionOptions => ({
+	colorCount: 256,
+	reduceColors: false,
+	preserveAlpha: true,
+	backgroundColor: "#ffffff",
+	interlaced: false,
+});

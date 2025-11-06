@@ -1,6 +1,33 @@
-import { GIFEncoder, applyPalette, quantize } from "gifenc";
+import UPNG from "upng-js";
+
+import { applyPaletteMapping, convertGifWithOptions, quantizePalette } from "@/lib/gifEncoder";
+import { applyBackground, ensureColorCount, parseHexColor } from "@/lib/imageUtils";
 
 export type OutputFormat = "jpeg" | "png" | "webp" | "gif";
+
+export type GifDitheringMode = "none" | "floyd-steinberg";
+
+export interface GifConversionOptions {
+	colorCount: number;
+	dithering: GifDitheringMode;
+	preserveAlpha: boolean;
+	backgroundColor: string;
+	loopCount: number;
+}
+
+export interface PngConversionOptions {
+	colorCount: number;
+	reduceColors: boolean;
+	preserveAlpha: boolean;
+	backgroundColor: string;
+	interlaced: boolean;
+}
+
+export type ConversionConfig =
+	| { format: "jpeg"; quality: number }
+	| { format: "webp"; quality: number }
+	| { format: "png"; options: PngConversionOptions }
+	| { format: "gif"; options: GifConversionOptions };
 
 export interface ConversionResult {
 	blob: Blob;
@@ -9,11 +36,9 @@ export interface ConversionResult {
 	height: number;
 }
 
-const mimeMap: Record<OutputFormat, string> = {
+const mimeMap: Record<Exclude<OutputFormat, "gif" | "png">, string> = {
 	jpeg: "image/jpeg",
-	png: "image/png",
 	webp: "image/webp",
-	gif: "image/gif",
 };
 
 const qualityToFloat = (quality: number) => {
@@ -58,7 +83,7 @@ const loadImageSource = async (
 			};
 		}
 	} catch (error) {
-		console.warn("createImageBitmap a échoué, fallback sur HTMLImageElement", error);
+		console.warn("createImageBitmap failed, falling back to HTMLImageElement", error);
 	}
 
 	const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -76,36 +101,77 @@ const loadImageSource = async (
 	};
 };
 
-const convertToGif = (imageData: ImageData, quality: number): Blob => {
-	const maxColors = Math.min(256, Math.max(8, Math.round((quality / 100) * 240 + 16)));
-	const palette = quantize(imageData.data, { maxColors });
-	const indexData = applyPalette(imageData.data, palette);
-	const gif = new GIFEncoder();
-	gif.writeFrame(indexData, imageData.width, imageData.height, {
-		palette,
-		transparent: false,
-		delay: 0,
+const reduceColors = (source: Uint8ClampedArray, targetColors: number, preserveAlpha: boolean) => {
+	const palette = quantizePalette(source, targetColors, {
+		format: preserveAlpha ? "rgba4444" : "rgb565",
+		oneBitAlpha: preserveAlpha ? undefined : true,
+		clearAlpha: true,
 	});
-	gif.finish();
-	const bytes = gif.bytesView();
-	const buffer = new ArrayBuffer(bytes.byteLength);
-	new Uint8Array(buffer).set(bytes);
-	return new Blob([buffer], { type: "image/gif" });
+	const indices = applyPaletteMapping(source, palette, preserveAlpha ? "rgba4444" : "rgb565");
+	const result = new Uint8ClampedArray(source.length);
+	for (let i = 0; i < indices.length; i++) {
+		const paletteColor = palette[indices[i]];
+		const dest = i * 4;
+		result[dest] = paletteColor[0];
+		result[dest + 1] = paletteColor[1];
+		result[dest + 2] = paletteColor[2];
+		result[dest + 3] =
+			preserveAlpha && paletteColor.length > 3
+				? paletteColor[3]
+				: preserveAlpha
+					? source[dest + 3]
+					: 255;
+	}
+	return result;
+};
+
+const convertPng = (imageData: ImageData, options: PngConversionOptions): Blob => {
+	const data = new Uint8ClampedArray(imageData.data);
+	const background = parseHexColor(options.backgroundColor);
+
+	if (!options.preserveAlpha) {
+		applyBackground(data, background);
+	}
+
+	const shouldReduce = options.reduceColors && options.colorCount < 256;
+	const processed = shouldReduce
+		? reduceColors(data, ensureColorCount(options.colorCount), options.preserveAlpha)
+		: data;
+
+	const frameBuffer = processed.buffer.slice(
+		processed.byteOffset,
+		processed.byteOffset + processed.byteLength,
+	);
+
+	const colorCount = options.reduceColors ? ensureColorCount(options.colorCount) : 0;
+	const upngOptions: Record<string, unknown> = {};
+	if (options.interlaced) {
+		upngOptions.interlace = 1;
+	}
+	const pngArrayBuffer = UPNG.encode(
+		[frameBuffer],
+		imageData.width,
+		imageData.height,
+		colorCount,
+		undefined,
+		upngOptions,
+	);
+
+	return new Blob([pngArrayBuffer], { type: "image/png" });
 };
 
 export const convertImage = async (
 	file: File,
-	format: OutputFormat,
-	quality: number,
+	config: ConversionConfig,
 ): Promise<ConversionResult> => {
 	const { source, width, height, release } = await loadImageSource(file);
 	try {
 		const canvas = document.createElement("canvas");
 		const ctx = drawOnCanvas(canvas, source, width, height);
 
-		if (format === "gif") {
+		if (config.format === "gif") {
 			const imageData = ctx.getImageData(0, 0, width, height);
-			const blob = convertToGif(imageData, quality);
+			const blob = convertGifWithOptions(imageData, config.options);
 			return {
 				blob,
 				url: URL.createObjectURL(blob),
@@ -114,15 +180,26 @@ export const convertImage = async (
 			};
 		}
 
-		const mimeType = mimeMap[format];
+		if (config.format === "png") {
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const blob = convertPng(imageData, config.options);
+			return {
+				blob,
+				url: URL.createObjectURL(blob),
+				width,
+				height,
+			};
+		}
+
+		const mimeType = mimeMap[config.format];
 		const blob = await new Promise<Blob>((resolve, reject) => {
-			const qualityValue = format === "png" ? undefined : qualityToFloat(quality);
+			const qualityValue = qualityToFloat(config.quality);
 			canvas.toBlob(
 				(result) => {
 					if (result) {
 						resolve(result);
 					} else {
-						reject(new Error("La conversion a échoué."));
+						reject(new Error("Conversion failed."));
 					}
 				},
 				mimeType,
@@ -141,4 +218,8 @@ export const convertImage = async (
 	}
 };
 
-export const getMimeType = (format: OutputFormat) => mimeMap[format];
+export const getMimeType = (format: OutputFormat) => {
+	if (format === "gif") return "image/gif";
+	if (format === "png") return "image/png";
+	return mimeMap[format];
+};

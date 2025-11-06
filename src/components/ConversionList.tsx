@@ -4,23 +4,28 @@ import { ConversionItem } from "@/components/ConversionItem";
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
 import type { OutputFormat } from "@/lib/imageConversion";
 import type { ConversionItem as ConversionItemType } from "@/types/conversion";
+import type { GifConversionOptions, PngConversionOptions } from "@/lib/imageConversion";
 
 interface ConversionListProps {
 	items: ConversionItemType[];
-	globalQuality: number;
+	globalFormat: OutputFormat;
 	onFormatChange: (id: string, format: OutputFormat) => void;
 	onQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
-	onUseGlobalQualityChange: (id: string, useGlobal: boolean) => void;
+	onUseGlobalSettingsChange: (id: string, useGlobal: boolean) => void;
+	onGifOptionsChange: (id: string, options: Partial<GifConversionOptions>) => void;
+	onPngOptionsChange: (id: string, options: Partial<PngConversionOptions>) => void;
 	onSplitChange: (id: string, value: number) => void;
 	onRemove: (id: string) => void;
 }
 
 export const ConversionList = ({
 	items,
-	globalQuality,
+	globalFormat,
 	onFormatChange,
 	onQualityChange,
-	onUseGlobalQualityChange,
+	onUseGlobalSettingsChange,
+	onGifOptionsChange,
+	onPngOptionsChange,
 	onSplitChange,
 	onRemove,
 }: ConversionListProps) => {
@@ -38,10 +43,12 @@ export const ConversionList = ({
 				<ConversionItem
 					key={item.id}
 					item={item}
-					globalQuality={globalQuality}
+					globalFormat={globalFormat}
 					onFormatChange={onFormatChange}
 					onQualityChange={onQualityChange}
-					onUseGlobalQualityChange={onUseGlobalQualityChange}
+					onUseGlobalSettingsChange={onUseGlobalSettingsChange}
+					onGifOptionsChange={onGifOptionsChange}
+					onPngOptionsChange={onPngOptionsChange}
 					onSplitChange={onSplitChange}
 					onRemove={onRemove}
 				/>

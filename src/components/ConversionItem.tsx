@@ -4,36 +4,251 @@ import { SimpleBlock } from "@/components/ui/SimpleBlock";
 import { SimpleButton } from "@/components/ui/SimpleButton";
 import { SimpleField } from "@/components/ui/SimpleField";
 import { SimpleTitle } from "@/components/ui/SimpleTitle";
-import type { OutputFormat } from "@/lib/imageConversion";
+import type {
+	GifConversionOptions,
+	OutputFormat,
+	PngConversionOptions,
+} from "@/lib/imageConversion";
 import { formatBytes } from "@/lib/utils";
 import { type ConversionItem as ConversionItemType, formatOptions } from "@/types/conversion";
 
 interface ConversionItemProps {
 	item: ConversionItemType;
-	globalQuality: number;
+	globalFormat: OutputFormat;
 	onFormatChange: (id: string, format: OutputFormat) => void;
 	onQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
-	onUseGlobalQualityChange: (id: string, useGlobal: boolean) => void;
+	onUseGlobalSettingsChange: (id: string, useGlobal: boolean) => void;
+	onGifOptionsChange: (id: string, options: Partial<GifConversionOptions>) => void;
+	onPngOptionsChange: (id: string, options: Partial<PngConversionOptions>) => void;
 	onSplitChange: (id: string, value: number) => void;
 	onRemove: (id: string) => void;
 }
 
 export const ConversionItem = ({
 	item,
-	globalQuality,
+	globalFormat,
 	onFormatChange,
 	onQualityChange,
-	onUseGlobalQualityChange,
+	onUseGlobalSettingsChange,
+	onGifOptionsChange,
+	onPngOptionsChange,
 	onSplitChange,
 	onRemove,
 }: ConversionItemProps) => {
 	const convertedSize = item.convertedBlob?.size ?? null;
 	const formatLabel =
 		formatOptions.find((option) => option.value === item.targetFormat)?.label ?? item.targetFormat;
-	const qualityDisabled = item.usesGlobalQuality;
+	const globalFormatLabel =
+		formatOptions.find((option) => option.value === globalFormat)?.label ?? globalFormat;
+	const isQualityFormat = item.targetFormat === "jpeg" || item.targetFormat === "webp";
+	const usesGlobalSettings = item.usesGlobalFormat && (!isQualityFormat || item.usesGlobalQuality);
+	const qualityDisabled = isQualityFormat && (item.usesGlobalQuality || usesGlobalSettings);
+	const formatDisabled = usesGlobalSettings;
+	const settingsDisabled = usesGlobalSettings;
 	const delta = convertedSize !== null ? item.originalSize - convertedSize : null;
 	const gainRatio =
 		delta !== null && item.originalSize > 0 ? (delta / item.originalSize) * 100 : null;
+
+	const renderQualityControls = () => (
+		<SimpleField label="Quality" className="md:w-full">
+			<div className="flex items-center gap-3">
+				<input
+					type="range"
+					min={0}
+					max={100}
+					step={1}
+					value={item.quality}
+					disabled={qualityDisabled}
+					onChange={(event) => onQualityChange(item.id, event)}
+					className="h-1 w-full disabled:opacity-50"
+				/>
+				<span className="w-12 text-sm text-gray-600">{item.quality}</span>
+			</div>
+		</SimpleField>
+	);
+
+	const renderGifControls = () => {
+		const options = item.gifOptions;
+		const showBackground = !options.preserveAlpha;
+		return (
+			<SimpleBlock className="space-y-3">
+				<SimpleTitle as="h4" className="text-base">
+					GIF options
+				</SimpleTitle>
+				<div className="space-y-3 text-sm text-gray-700">
+					<label className="flex flex-col gap-1">
+						<span>Number of colors</span>
+						<div className="flex items-center gap-3">
+							<input
+								type="range"
+								min={2}
+								max={256}
+								step={1}
+								value={options.colorCount}
+								disabled={settingsDisabled}
+								onChange={(event) =>
+									onGifOptionsChange(item.id, { colorCount: Number(event.target.value) })
+								}
+								className="h-1 w-full disabled:opacity-50"
+							/>
+							<span className="w-12 text-right">{options.colorCount}</span>
+						</div>
+					</label>
+
+					<label className="flex flex-col gap-1">
+						<span>Dithering</span>
+						<select
+							value={options.dithering}
+							disabled={settingsDisabled}
+							onChange={(event) =>
+								onGifOptionsChange(item.id, {
+									dithering: event.target.value as GifConversionOptions["dithering"],
+								})
+							}
+							className="w-full border border-gray-400 bg-white px-2 py-2 text-sm disabled:opacity-60"
+						>
+							<option value="none">None</option>
+							<option value="floyd-steinberg">Floyd-Steinberg</option>
+						</select>
+					</label>
+
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							checked={options.preserveAlpha}
+							disabled={settingsDisabled}
+							onChange={(event) =>
+								onGifOptionsChange(item.id, { preserveAlpha: event.target.checked })
+							}
+							className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						/>
+						<span>Preserve transparency</span>
+					</label>
+
+					{showBackground ? (
+						<label className="flex items-center gap-3">
+							<span>Background color</span>
+							<input
+								type="color"
+								value={options.backgroundColor}
+								disabled={settingsDisabled}
+								onChange={(event) =>
+									onGifOptionsChange(item.id, { backgroundColor: event.target.value })
+								}
+								className="h-8 w-12 border border-gray-400 bg-white disabled:opacity-60"
+							/>
+						</label>
+					) : null}
+
+					<label className="flex flex-col gap-1">
+						<span>Loop count (0 = infinite)</span>
+						<input
+							type="number"
+							min={-1}
+							value={options.loopCount}
+							disabled={settingsDisabled}
+							onChange={(event) =>
+								onGifOptionsChange(item.id, { loopCount: Number(event.target.value) })
+							}
+							className="w-full border border-gray-400 px-2 py-2 text-sm disabled:opacity-60"
+						/>
+					</label>
+				</div>
+			</SimpleBlock>
+		);
+	};
+
+	const renderPngControls = () => {
+		const options = item.pngOptions;
+		const showBackground = !options.preserveAlpha;
+		return (
+			<SimpleBlock className="space-y-3">
+				<SimpleTitle as="h4" className="text-base">
+					PNG options
+				</SimpleTitle>
+				<div className="space-y-3 text-sm text-gray-700">
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							checked={options.reduceColors}
+							disabled={settingsDisabled}
+							onChange={(event) =>
+								onPngOptionsChange(item.id, { reduceColors: event.target.checked })
+							}
+							className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						/>
+						<span>Reduce color count</span>
+					</label>
+
+					<label className="flex flex-col gap-1">
+						<span>Palette (2 – 256)</span>
+						<div className="flex items-center gap-3">
+							<input
+								type="range"
+								min={2}
+								max={256}
+								step={1}
+								value={options.colorCount}
+								disabled={!options.reduceColors || settingsDisabled}
+								onChange={(event) =>
+									onPngOptionsChange(item.id, { colorCount: Number(event.target.value) })
+								}
+								className="h-1 w-full disabled:opacity-40"
+							/>
+							<span className="w-12 text-right">{options.colorCount}</span>
+						</div>
+					</label>
+
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							checked={options.preserveAlpha}
+							disabled={settingsDisabled}
+							onChange={(event) =>
+								onPngOptionsChange(item.id, { preserveAlpha: event.target.checked })
+							}
+							className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						/>
+						<span>Preserve transparency</span>
+					</label>
+
+					{showBackground ? (
+						<label className="flex items-center gap-3">
+							<span>Background color</span>
+							<input
+								type="color"
+								value={options.backgroundColor}
+								disabled={settingsDisabled}
+								onChange={(event) =>
+									onPngOptionsChange(item.id, { backgroundColor: event.target.value })
+								}
+								className="h-8 w-12 border border-gray-400 bg-white disabled:opacity-60"
+							/>
+						</label>
+					) : null}
+
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							checked={options.interlaced}
+							disabled={settingsDisabled}
+							onChange={(event) =>
+								onPngOptionsChange(item.id, { interlaced: event.target.checked })
+							}
+							className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						/>
+						<span>Interlaced (progressive)</span>
+					</label>
+				</div>
+			</SimpleBlock>
+		);
+	};
+
+	const renderSettingsControls = () => {
+		if (item.targetFormat === "gif") return renderGifControls();
+		if (item.targetFormat === "png") return renderPngControls();
+		return renderQualityControls();
+	};
 
 	return (
 		<SimpleBlock className="space-y-4">
@@ -44,49 +259,37 @@ export const ConversionItem = ({
 					</SimpleTitle>
 				</div>
 				<SimpleButton onClick={() => onRemove(item.id)} variant="outline">
-					Retirer
+					Remove
 				</SimpleButton>
 			</div>
 
-			<div className="flex flex-col mx-auto max-w-5xl gap-4 md:flex-row">
-				<SimpleField label="Format" className="md:w-1/3">
-					<select
-						value={item.targetFormat}
-						onChange={(event) => onFormatChange(item.id, event.target.value as OutputFormat)}
-						className="w-full border border-gray-400 bg-white px-2 py-2 text-sm"
-					>
-						{formatOptions.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
-				</SimpleField>
-
-				<SimpleField label="Qualité" className="md:w-1/3">
-					<div className="flex items-center gap-3">
-						<input
-							type="range"
-							min={0}
-							max={100}
-							step={1}
-							value={item.quality}
-							disabled={qualityDisabled}
-							onChange={(event) => onQualityChange(item.id, event)}
-							className="h-1 w-full"
-						/>
-						<span className="w-12 text-sm text-gray-600">{item.quality}</span>
-					</div>
-					<label className="flex items-center gap-2 text-xs text-gray-600">
-						<input
-							type="checkbox"
-							checked={item.usesGlobalQuality}
-							onChange={(event) => onUseGlobalQualityChange(item.id, event.target.checked)}
-							className="h-4 w-4 border border-gray-400"
-						/>
-						Utiliser le réglage par défaut ({globalQuality})
-					</label>
-				</SimpleField>
+			<div className="mx-auto flex max-w-5xl flex-col gap-4">
+				<div className="grid gap-4 md:grid-cols-2">
+					<SimpleField label="Format">
+						<select
+							value={item.targetFormat}
+							onChange={(event) => onFormatChange(item.id, event.target.value as OutputFormat)}
+							disabled={formatDisabled}
+							className="w-full border border-gray-400 bg-white px-2 py-2 text-sm disabled:opacity-60"
+						>
+							{formatOptions.map((option) => (
+								<option key={option.value} value={option.value}>
+									{option.label}
+								</option>
+							))}
+						</select>
+						<label className="mt-2 flex items-center gap-2 text-xs text-gray-600">
+							<input
+								type="checkbox"
+								checked={usesGlobalSettings}
+								onChange={(event) => onUseGlobalSettingsChange(item.id, event.target.checked)}
+								className="h-4 w-4 border border-gray-400"
+							/>
+							<b>Use default settings</b> - {globalFormatLabel}
+						</label>
+					</SimpleField>
+					{renderSettingsControls()}
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-4 md:flex-row">
@@ -98,7 +301,7 @@ export const ConversionItem = ({
 							{item.convertedUrl ? (
 								<img
 									src={item.convertedUrl}
-									alt="Converti"
+									alt="Converted"
 									className="absolute inset-0 h-full w-full object-contain"
 									style={{ clipPath: `inset(0 ${100 - item.compareSplit}% 0 0)` }}
 								/>
@@ -110,7 +313,7 @@ export const ConversionItem = ({
 							></div>
 
 							<div className="pointer-events-none absolute inset-0 flex items-start justify-between text-xs text-gray-700">
-								<span className="bg-slate-300 px-2 py-1">Converti</span>
+								<span className="bg-slate-300 px-2 py-1">Converted</span>
 								<span className="bg-slate-300 px-2 py-1">Original</span>
 							</div>
 						</div>
@@ -125,31 +328,31 @@ export const ConversionItem = ({
 					</div>
 
 					{item.status === "processing" ? (
-						<p className="text-xs text-gray-600">Conversion en cours…</p>
+						<p className="text-xs text-gray-600">Converting…</p>
 					) : null}
 					{item.status === "error" ? (
-						<p className="text-xs text-red-600">{item.error ?? "Une erreur est survenue."}</p>
+						<p className="text-xs text-red-600">{item.error ?? "Something went wrong."}</p>
 					) : null}
 				</div>
 
 				<div className="flex w-full flex-col justify-between gap-3 md:w-64">
 					<div className="space-y-2 border border-gray-300 bg-white p-3 text-sm text-gray-700">
 						<div className="flex justify-between">
-							<span>État</span>
+							<span>Status</span>
 							<span className="font-medium text-gray-900">
 								{item.status === "processing"
-									? "Conversion en cours"
+									? "Converting"
 									: item.status === "error"
-										? (item.error ?? "Une erreur est survenue")
-										: "Prêt"}
+										? (item.error ?? "Something went wrong")
+										: "Ready"}
 							</span>
 						</div>
 						<div className="flex justify-between">
-							<span>Format original</span>
+							<span>Source format</span>
 							<span className="font-medium text-gray-900">{item.file.type || "Auto"}</span>
 						</div>
 						<div className="flex justify-between">
-							<span>Format converti</span>
+							<span>Target format</span>
 							<span className="font-medium text-gray-900">{formatLabel}</span>
 						</div>
 						<div className="flex justify-between">
@@ -157,23 +360,23 @@ export const ConversionItem = ({
 							<span className="font-medium text-gray-900">
 								{item.width && item.height
 									? `${item.width} × ${item.height}px`
-									: "Analyse en cours"}
+									: "Processing"}
 							</span>
 						</div>
 
 						<div className="flex justify-between">
-							<span>Poids original</span>
+							<span>Original size</span>
 							<span className="font-medium text-gray-900">{formatBytes(item.originalSize)}</span>
 						</div>
 						<div className="flex justify-between">
-							<span>Poids converti</span>
+							<span>Converted size</span>
 							<span className="font-medium text-gray-900">
 								{convertedSize !== null ? formatBytes(convertedSize) : "—"}
 							</span>
 						</div>
 						{gainRatio !== null && delta !== null ? (
 							<div className="flex justify-between">
-								<span>Gain</span>
+								<span>Savings</span>
 								<span className="font-medium text-gray-900">
 									{formatBytes(delta)} ({gainRatio.toFixed(1)}%)
 								</span>
@@ -194,7 +397,7 @@ export const ConversionItem = ({
 						}}
 						className={clsx("text-center", !item.convertedBlob && "cursor-not-allowed opacity-50")}
 					>
-						Télécharger
+						Download
 					</SimpleButton>
 				</div>
 			</div>

@@ -34,7 +34,7 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 
 	return (
 		<SimpleBlock className="space-y-4">
-			<SimpleTitle>Importer des images</SimpleTitle>
+			<SimpleTitle>Upload images</SimpleTitle>
 			<label
 				htmlFor="file-upload"
 				onDragOver={(event) => {
@@ -56,8 +56,8 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 					onChange={onInputChange}
 					className="hidden"
 				/>
-				<p className="text-sm text-gray-700">Déposez vos fichiers ici ou cliquez pour parcourir.</p>
-				<p className="text-xs text-gray-500">Formats acceptés : jpg, png, gif, svg, webp…</p>
+				<p className="text-sm text-gray-700">Drop your files here or click to browse.</p>
+				<p className="text-xs text-gray-500">Supported formats: jpg, png, gif, svg, webp…</p>
 			</label>
 		</SimpleBlock>
 	);

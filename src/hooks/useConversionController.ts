@@ -1,15 +1,33 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { saveAs } from "file-saver";
 
-import { type OutputFormat, convertImage } from "@/lib/imageConversion";
+import {
+	type GifConversionOptions,
+	type OutputFormat,
+	type PngConversionOptions,
+	convertImage,
+} from "@/lib/imageConversion";
 import { createArchiveFromConversions } from "@/lib/downloadAll";
 import { createId } from "@/lib/utils";
-import { defaultQuality, type ConversionItem } from "@/types/conversion";
+import {
+	createDefaultGifOptions,
+	createDefaultPngOptions,
+	defaultQuality,
+	type ConversionItem,
+} from "@/types/conversion";
+
+const formatUsesQuality = (format: OutputFormat) => format === "jpeg" || format === "webp";
+
+const cloneGifOptions = (options: GifConversionOptions): GifConversionOptions => ({ ...options });
+
+const clonePngOptions = (options: PngConversionOptions): PngConversionOptions => ({ ...options });
 
 interface UseConversionControllerResult {
 	items: ConversionItem[];
 	globalFormat: OutputFormat;
 	globalQuality: number;
+	globalGifOptions: GifConversionOptions;
+	globalPngOptions: PngConversionOptions;
 	averageReduction: {
 		convertedTotal: number;
 		originalTotal: number;
@@ -22,9 +40,13 @@ interface UseConversionControllerResult {
 	handleFiles: (files: FileList | null) => void;
 	handleFormatChange: (id: string, format: OutputFormat) => void;
 	handleQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
-	handleUseGlobalQualityChange: (id: string, useGlobal: boolean) => void;
+	handleUseGlobalSettingsChange: (id: string, useGlobal: boolean) => void;
+	handleGifOptionsChange: (id: string, options: Partial<GifConversionOptions>) => void;
+	handlePngOptionsChange: (id: string, options: Partial<PngConversionOptions>) => void;
 	handleGlobalQualityChange: (value: number) => void;
 	handleGlobalFormatChange: (format: OutputFormat) => void;
+	handleGlobalGifOptionsChange: (options: Partial<GifConversionOptions>) => void;
+	handleGlobalPngOptionsChange: (options: Partial<PngConversionOptions>) => void;
 	handleSplitChange: (id: string, value: number) => void;
 	removeItem: (id: string) => void;
 	clearAll: () => void;
@@ -35,6 +57,8 @@ export const useConversionController = (): UseConversionControllerResult => {
 	const [items, setItems] = useState<ConversionItem[]>([]);
 	const [globalFormat, setGlobalFormat] = useState<OutputFormat>("webp");
 	const [globalQuality, setGlobalQuality] = useState(defaultQuality("webp"));
+	const [globalGifOptions, setGlobalGifOptions] = useState(createDefaultGifOptions);
+	const [globalPngOptions, setGlobalPngOptions] = useState(createDefaultPngOptions);
 	const [isExporting, setIsExporting] = useState(false);
 	const itemsRef = useRef<ConversionItem[]>([]);
 
@@ -57,7 +81,14 @@ export const useConversionController = (): UseConversionControllerResult => {
 
 	const runConversion = useCallback(async (job: ConversionItem) => {
 		try {
-			const result = await convertImage(job.file, job.targetFormat, job.quality);
+			const result = await convertImage(
+				job.file,
+				job.targetFormat === "gif"
+					? { format: "gif", options: job.gifOptions }
+					: job.targetFormat === "png"
+						? { format: "png", options: job.pngOptions }
+						: { format: job.targetFormat, quality: job.quality },
+			);
 			setItems((prev) =>
 				prev.map((item) => {
 					if (item.id !== job.id) return item;
@@ -75,7 +106,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 				}),
 			);
 		} catch (error) {
-			const message = error instanceof Error ? error.message : "La conversion a échoué.";
+			const message = error instanceof Error ? error.message : "Conversion failed.";
 			setItems((prev) =>
 				prev.map((item) =>
 					item.id === job.id
@@ -93,24 +124,34 @@ export const useConversionController = (): UseConversionControllerResult => {
 	const scheduleConversion = useCallback(
 		(
 			id: string,
-			overrides?: Partial<
-				Pick<ConversionItem, "targetFormat" | "quality" | "usesGlobalQuality" | "usesGlobalFormat">
-			>,
+			overrides?:
+				| Partial<
+						Pick<
+							ConversionItem,
+							| "targetFormat"
+							| "quality"
+							| "usesGlobalQuality"
+							| "usesGlobalFormat"
+							| "gifOptions"
+							| "pngOptions"
+						>
+				  >
+				| ((item: ConversionItem) => Partial<ConversionItem>),
 		) => {
-			setItems((prev) => {
-				const next = prev.map((item) => {
+			setItems((prev) =>
+				prev.map((item) => {
 					if (item.id !== id) return item;
+					const patch = typeof overrides === "function" ? overrides(item) : (overrides ?? {});
 					const updated: ConversionItem = {
 						...item,
-						...overrides,
+						...patch,
 						status: "processing",
 						error: undefined,
 					};
 					queueMicrotask(() => runConversion(updated));
 					return updated;
-				});
-				return next;
-			});
+				}),
+			);
 		},
 		[runConversion],
 	);
@@ -122,8 +163,8 @@ export const useConversionController = (): UseConversionControllerResult => {
 			for (const file of files) {
 				const originalUrl = URL.createObjectURL(file);
 				const targetFormat: OutputFormat = globalFormat;
-				const usesGlobalQuality = true;
-				const quality = globalQuality;
+				const usesGlobalQuality = formatUsesQuality(targetFormat);
+				const quality = usesGlobalQuality ? globalQuality : defaultQuality(targetFormat);
 				const job: ConversionItem = {
 					id: createId(),
 					file,
@@ -133,6 +174,8 @@ export const useConversionController = (): UseConversionControllerResult => {
 					quality,
 					usesGlobalQuality,
 					usesGlobalFormat: true,
+					gifOptions: cloneGifOptions(globalGifOptions),
+					pngOptions: clonePngOptions(globalPngOptions),
 					status: "processing",
 					compareSplit: 50,
 				};
@@ -141,7 +184,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 			}
 			setItems((prev) => [...prev, ...additions]);
 		},
-		[globalFormat, globalQuality, runConversion],
+		[globalFormat, globalGifOptions, globalPngOptions, globalQuality, runConversion],
 	);
 
 	const removeItem = useCallback(
@@ -167,17 +210,24 @@ export const useConversionController = (): UseConversionControllerResult => {
 	const handleFormatChange = useCallback(
 		(id: string, format: OutputFormat) => {
 			const current = itemsRef.current.find((item) => item.id === id);
-			const shouldUseGlobal = current?.usesGlobalQuality ?? true;
-			const useGlobalFormat = format === globalFormat;
-			const baseQuality = shouldUseGlobal ? globalQuality : defaultQuality(format);
-			scheduleConversion(id, {
+			const usesSlider = formatUsesQuality(format);
+			const shouldUseGlobal = usesSlider ? Boolean(current?.usesGlobalQuality) : false;
+			const baseQuality = usesSlider
+				? shouldUseGlobal
+					? globalQuality
+					: defaultQuality(format)
+				: defaultQuality(format);
+			scheduleConversion(id, (item) => ({
 				targetFormat: format,
 				quality: baseQuality,
-				usesGlobalQuality: shouldUseGlobal,
-				usesGlobalFormat: useGlobalFormat,
-			});
+				usesGlobalQuality: usesSlider ? shouldUseGlobal : false,
+				usesGlobalFormat:
+					item.usesGlobalFormat && format === item.targetFormat ? item.usesGlobalFormat : false,
+				gifOptions: format === "gif" ? cloneGifOptions(globalGifOptions) : item.gifOptions,
+				pngOptions: format === "png" ? clonePngOptions(globalPngOptions) : item.pngOptions,
+			}));
 		},
-		[globalFormat, globalQuality, scheduleConversion],
+		[globalGifOptions, globalPngOptions, globalQuality, scheduleConversion],
 	);
 
 	const handleQualityChange = useCallback(
@@ -188,18 +238,48 @@ export const useConversionController = (): UseConversionControllerResult => {
 		[scheduleConversion],
 	);
 
-	const handleUseGlobalQualityChange = useCallback(
+	const handleUseGlobalSettingsChange = useCallback(
 		(id: string, useGlobal: boolean) => {
 			const current = itemsRef.current.find((item) => item.id === id);
-			const nextQuality = useGlobal
-				? globalQuality
-				: (current?.quality ?? (current ? defaultQuality(current.targetFormat) : globalQuality));
-			scheduleConversion(id, {
-				quality: nextQuality,
-				usesGlobalQuality: useGlobal,
-			});
+			if (!current) return;
+			if (useGlobal) {
+				const nextFormat = globalFormat;
+				const formatHasQuality = formatUsesQuality(nextFormat);
+				const nextQuality = formatHasQuality ? globalQuality : defaultQuality(nextFormat);
+				scheduleConversion(id, {
+					targetFormat: nextFormat,
+					quality: nextQuality,
+					usesGlobalFormat: true,
+					usesGlobalQuality: formatHasQuality,
+					gifOptions: nextFormat === "gif" ? cloneGifOptions(globalGifOptions) : current.gifOptions,
+					pngOptions: nextFormat === "png" ? clonePngOptions(globalPngOptions) : current.pngOptions,
+				});
+			} else {
+				scheduleConversion(id, {
+					usesGlobalFormat: false,
+					usesGlobalQuality: false,
+				});
+			}
 		},
-		[globalQuality, scheduleConversion],
+		[globalFormat, globalGifOptions, globalPngOptions, globalQuality, scheduleConversion],
+	);
+
+	const handleGifOptionsChange = useCallback(
+		(id: string, options: Partial<GifConversionOptions>) => {
+			scheduleConversion(id, (item) => ({
+				gifOptions: { ...item.gifOptions, ...options },
+			}));
+		},
+		[scheduleConversion],
+	);
+
+	const handlePngOptionsChange = useCallback(
+		(id: string, options: Partial<PngConversionOptions>) => {
+			scheduleConversion(id, (item) => ({
+				pngOptions: { ...item.pngOptions, ...options },
+			}));
+		},
+		[scheduleConversion],
 	);
 
 	const handleGlobalQualityChange = useCallback(
@@ -223,6 +303,52 @@ export const useConversionController = (): UseConversionControllerResult => {
 		[runConversion],
 	);
 
+	const handleGlobalGifOptionsChange = useCallback(
+		(options: Partial<GifConversionOptions>) => {
+			setGlobalGifOptions((prev) => {
+				const next = { ...prev, ...options };
+				setItems((prevItems) =>
+					prevItems.map((item) => {
+						if (item.targetFormat !== "gif" || !item.usesGlobalFormat) return item;
+						const updated: ConversionItem = {
+							...item,
+							gifOptions: cloneGifOptions(next),
+							status: "processing",
+							error: undefined,
+						};
+						queueMicrotask(() => runConversion(updated));
+						return updated;
+					}),
+				);
+				return next;
+			});
+		},
+		[runConversion],
+	);
+
+	const handleGlobalPngOptionsChange = useCallback(
+		(options: Partial<PngConversionOptions>) => {
+			setGlobalPngOptions((prev) => {
+				const next = { ...prev, ...options };
+				setItems((prevItems) =>
+					prevItems.map((item) => {
+						if (item.targetFormat !== "png" || !item.usesGlobalFormat) return item;
+						const updated: ConversionItem = {
+							...item,
+							pngOptions: clonePngOptions(next),
+							status: "processing",
+							error: undefined,
+						};
+						queueMicrotask(() => runConversion(updated));
+						return updated;
+					}),
+				);
+				return next;
+			});
+		},
+		[runConversion],
+	);
+
 	const handleGlobalFormatChange = useCallback(
 		(format: OutputFormat) => {
 			setGlobalFormat(format);
@@ -239,6 +365,8 @@ export const useConversionController = (): UseConversionControllerResult => {
 						usesGlobalQuality,
 						status: "processing",
 						error: undefined,
+						gifOptions: format === "gif" ? cloneGifOptions(globalGifOptions) : item.gifOptions,
+						pngOptions: format === "png" ? clonePngOptions(globalPngOptions) : item.pngOptions,
 					};
 					queueMicrotask(() => runConversion(updated));
 					return updated;
@@ -246,7 +374,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 				return next;
 			});
 		},
-		[globalQuality, runConversion],
+		[globalGifOptions, globalPngOptions, globalQuality, runConversion],
 	);
 
 	const handleSplitChange = useCallback((id: string, value: number) => {
@@ -300,6 +428,8 @@ export const useConversionController = (): UseConversionControllerResult => {
 		items,
 		globalFormat,
 		globalQuality,
+		globalGifOptions,
+		globalPngOptions,
 		averageReduction,
 		hasItems: items.length > 0,
 		hasDownloadableItems,
@@ -307,9 +437,13 @@ export const useConversionController = (): UseConversionControllerResult => {
 		handleFiles,
 		handleFormatChange,
 		handleQualityChange,
-		handleUseGlobalQualityChange,
+		handleUseGlobalSettingsChange,
+		handleGifOptionsChange,
+		handlePngOptionsChange,
 		handleGlobalQualityChange,
 		handleGlobalFormatChange,
+		handleGlobalGifOptionsChange,
+		handleGlobalPngOptionsChange,
 		handleSplitChange,
 		removeItem,
 		clearAll,

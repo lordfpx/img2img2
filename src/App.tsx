@@ -10,6 +10,8 @@ const App = () => {
 		items,
 		globalFormat,
 		globalQuality,
+		globalGifOptions,
+		globalPngOptions,
 		averageReduction,
 		hasItems,
 		hasDownloadableItems,
@@ -17,9 +19,13 @@ const App = () => {
 		handleFiles,
 		handleFormatChange,
 		handleQualityChange,
-		handleUseGlobalQualityChange,
+		handleUseGlobalSettingsChange,
+		handleGifOptionsChange,
+		handlePngOptionsChange,
 		handleGlobalQualityChange,
 		handleGlobalFormatChange,
+		handleGlobalGifOptionsChange,
+		handleGlobalPngOptionsChange,
 		handleSplitChange,
 		removeItem,
 		clearAll,
@@ -37,13 +43,17 @@ const App = () => {
 			/>
 
 			<main className="flex flex-col">
-				<div className="mx-auto max-w-5xl flex flex-col gap-6 px-4 py-6">
+				<div className="mx-auto max-w-5xl flex flex-col gap-6 px-4 py-6 w-full">
 					<div className="grid grid-cols-2 gap-4">
 						<GlobalQualityControl
 							format={globalFormat}
 							onFormatChange={handleGlobalFormatChange}
 							quality={globalQuality}
 							onQualityChange={handleGlobalQualityChange}
+							gifOptions={globalGifOptions}
+							pngOptions={globalPngOptions}
+							onGifOptionsChange={handleGlobalGifOptionsChange}
+							onPngOptionsChange={handleGlobalPngOptionsChange}
 						/>
 
 						<FileUpload onFilesSelected={handleFiles} />
@@ -62,10 +72,12 @@ const App = () => {
 				<section className="flex flex-col gap-4">
 					<ConversionList
 						items={items}
-						globalQuality={globalQuality}
+						globalFormat={globalFormat}
 						onFormatChange={handleFormatChange}
 						onQualityChange={handleQualityChange}
-						onUseGlobalQualityChange={handleUseGlobalQualityChange}
+						onUseGlobalSettingsChange={handleUseGlobalSettingsChange}
+						onGifOptionsChange={handleGifOptionsChange}
+						onPngOptionsChange={handlePngOptionsChange}
 						onSplitChange={handleSplitChange}
 						onRemove={removeItem}
 					/>
