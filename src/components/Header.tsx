@@ -23,7 +23,7 @@ export const Header = ({
 				<SimpleBlock className="flex flex-col gap-4 border-0 bg-transparent p-0 sm:flex-row sm:items-center sm:justify-between">
 					<div>
 						<SimpleTitle as="h1" className="text-4xl">
-							Image Converter
+							MiniPix
 						</SimpleTitle>
 						<p className="text-sm text-gray-600">Import - Preview - Download</p>
 					</div>

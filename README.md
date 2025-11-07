@@ -1,4 +1,4 @@
-# Img2Img Converter
+# MiniPix Converter
 
 Application web développée avec React et Vite pour convertir rapidement plusieurs images vers différents formats (JPEG, PNG, WebP, GIF et SVG) directement dans le navigateur. Ce projet fournit un service web minimaliste et efficace, conçu pour fonctionner entièrement côté client.
 
