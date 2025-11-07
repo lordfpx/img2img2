@@ -41,6 +41,18 @@ const mimeMap: Record<Exclude<OutputFormat, "gif" | "png">, string> = {
 	webp: "image/webp",
 };
 
+const supportedInputMimeTypes = [
+	"image/jpeg",
+	"image/jpg",
+	"image/png",
+	"image/webp",
+	"image/gif",
+	"image/svg+xml",
+	"image/x-icon",
+] as const;
+
+const supportedInputExtensions = new Set(["jpeg", "jpg", "png", "gif", "webp", "svg", "ico"]);
+
 const qualityToFloat = (quality: number) => {
 	return Math.min(1, Math.max(0.05, quality / 100));
 };
@@ -222,4 +234,15 @@ export const getMimeType = (format: OutputFormat) => {
 	if (format === "gif") return "image/gif";
 	if (format === "png") return "image/png";
 	return mimeMap[format];
+};
+
+export const SUPPORTED_INPUT_MIME_TYPES = supportedInputMimeTypes;
+
+export const isSupportedInputFile = (file: File) => {
+	const type = file.type?.toLowerCase();
+	if (type && supportedInputMimeTypes.includes(type as (typeof supportedInputMimeTypes)[number])) {
+		return true;
+	}
+	const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+	return extension.length > 0 && supportedInputExtensions.has(extension);
 };

@@ -13,6 +13,7 @@ const App = () => {
 		globalGifOptions,
 		globalPngOptions,
 		averageReduction,
+		uploadError,
 		hasItems,
 		hasDownloadableItems,
 		isExporting,
@@ -44,6 +45,11 @@ const App = () => {
 
 			<main className="flex flex-col">
 				<div className="mx-auto max-w-5xl px-2 py-2 md:py-4 lg:py-6 w-full flex flex-col gap-2 md:gap-4 lg:gap-6">
+					<p className="text-gray-900">
+						This application will help you convert images between different formats and visualize
+						the differences.
+					</p>
+
 					<div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-6">
 						<GlobalQualityControl
 							format={globalFormat}
@@ -56,7 +62,7 @@ const App = () => {
 							onPngOptionsChange={handleGlobalPngOptionsChange}
 						/>
 
-						<FileUpload onFilesSelected={handleFiles} />
+						<FileUpload onFilesSelected={handleFiles} errorMessage={uploadError} />
 					</div>
 
 					{averageReduction ? (

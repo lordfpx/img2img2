@@ -1,19 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { saveAs } from "file-saver";
+import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { createArchiveFromConversions } from "@/lib/downloadAll";
 import {
+	convertImage,
 	type GifConversionOptions,
+	isSupportedInputFile,
 	type OutputFormat,
 	type PngConversionOptions,
-	convertImage,
 } from "@/lib/imageConversion";
-import { createArchiveFromConversions } from "@/lib/downloadAll";
-import { createId } from "@/lib/utils";
+import { MAX_TOTAL_BYTES } from "@/lib/uploadLimits";
+import { createId, formatBytes } from "@/lib/utils";
 import {
+	type ConversionItem,
 	createDefaultGifOptions,
 	createDefaultPngOptions,
 	defaultQuality,
-	type ConversionItem,
 } from "@/types/conversion";
 
 const formatUsesQuality = (format: OutputFormat) => format === "jpeg" || format === "webp";
@@ -34,6 +36,7 @@ interface UseConversionControllerResult {
 		delta: number;
 		ratio: number;
 	} | null;
+	uploadError: string | null;
 	hasItems: boolean;
 	hasDownloadableItems: boolean;
 	isExporting: boolean;
@@ -60,6 +63,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 	const [globalGifOptions, setGlobalGifOptions] = useState(createDefaultGifOptions);
 	const [globalPngOptions, setGlobalPngOptions] = useState(createDefaultPngOptions);
 	const [isExporting, setIsExporting] = useState(false);
+	const [uploadError, setUploadError] = useState<string | null>(null);
 	const itemsRef = useRef<ConversionItem[]>([]);
 
 	useEffect(() => {
@@ -160,7 +164,19 @@ export const useConversionController = (): UseConversionControllerResult => {
 		(files: FileList | null) => {
 			if (!files || files.length === 0) return;
 			const additions: ConversionItem[] = [];
+			const unsupportedFiles: string[] = [];
+			const oversizedFiles: string[] = [];
+			const limitLabel = formatBytes(MAX_TOTAL_BYTES);
+			let runningTotal = itemsRef.current.reduce((acc, item) => acc + item.originalSize, 0);
 			for (const file of files) {
+				if (!isSupportedInputFile(file)) {
+					unsupportedFiles.push(file.name);
+					continue;
+				}
+				if (runningTotal + file.size > MAX_TOTAL_BYTES) {
+					oversizedFiles.push(file.name);
+					continue;
+				}
 				const originalUrl = URL.createObjectURL(file);
 				const targetFormat: OutputFormat = globalFormat;
 				const usesGlobalQuality = formatUsesQuality(targetFormat);
@@ -180,9 +196,32 @@ export const useConversionController = (): UseConversionControllerResult => {
 					compareSplit: 50,
 				};
 				additions.push(job);
+				runningTotal += file.size;
 				queueMicrotask(() => runConversion(job));
 			}
-			setItems((prev) => [...prev, ...additions]);
+			if (additions.length > 0) {
+				setItems((prev) => [...prev, ...additions]);
+			}
+			const messages: string[] = [];
+			if (unsupportedFiles.length > 0) {
+				messages.push(
+					unsupportedFiles.length === 1
+						? `The file format of "${unsupportedFiles[0]}" is not supported.`
+						: `The file formats of the following files are not supported: ${unsupportedFiles.join(
+								", ",
+							)}.`,
+				);
+			}
+			if (oversizedFiles.length > 0) {
+				messages.push(
+					oversizedFiles.length === 1
+						? `Could not add "${oversizedFiles[0]}" because the total size would exceed ${limitLabel}.`
+						: `Could not add these files (${oversizedFiles.join(
+								", ",
+							)}) because the total size would exceed ${limitLabel}.`,
+				);
+			}
+			setUploadError(messages.length > 0 ? messages.join(" ") : null);
 		},
 		[globalFormat, globalGifOptions, globalPngOptions, globalQuality, runConversion],
 	);
@@ -431,6 +470,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 		globalGifOptions,
 		globalPngOptions,
 		averageReduction,
+		uploadError,
 		hasItems: items.length > 0,
 		hasDownloadableItems,
 		isExporting,

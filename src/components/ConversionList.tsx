@@ -2,9 +2,12 @@ import type { ChangeEvent } from "react";
 
 import { ConversionItem } from "@/components/ConversionItem";
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
-import type { OutputFormat } from "@/lib/imageConversion";
+import type {
+	GifConversionOptions,
+	OutputFormat,
+	PngConversionOptions,
+} from "@/lib/imageConversion";
 import type { ConversionItem as ConversionItemType } from "@/types/conversion";
-import type { GifConversionOptions, PngConversionOptions } from "@/lib/imageConversion";
 
 interface ConversionListProps {
 	items: ConversionItemType[];
@@ -32,7 +35,7 @@ export const ConversionList = ({
 	if (items.length === 0) {
 		return (
 			<SimpleBlock>
-				<p className="text-sm text-gray-700">Importez une image pour commencer la conversion.</p>
+				<p className="text-sm text-gray-700">Upload an image to start the conversion.</p>
 			</SimpleBlock>
 		);
 	}

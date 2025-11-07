@@ -2,24 +2,19 @@ import clsx from "clsx";
 import { type ChangeEvent, type DragEvent, useState } from "react";
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
 import { SimpleTitle } from "@/components/ui/SimpleTitle";
-import { getMimeType } from "@/lib/imageConversion";
-import { formatOptions } from "@/types/conversion";
+import { SUPPORTED_INPUT_MIME_TYPES } from "@/lib/imageConversion";
+import { MAX_TOTAL_BYTES } from "@/lib/uploadLimits";
+import { formatBytes } from "@/lib/utils";
 
 interface FileUploadProps {
 	onFilesSelected: (files: FileList | null) => void;
+	errorMessage?: string | null;
 }
 
-export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
+export const FileUpload = ({ onFilesSelected, errorMessage }: FileUploadProps) => {
 	const [isDragging, setIsDragging] = useState(false);
 
-	const acceptMimeTypes = Array.from(
-		new Set([
-			"image/svg+xml",
-			...formatOptions.map((option) => getMimeType(option.value)),
-			"image/jpg",
-			"image/x-icon",
-		]),
-	).join(",");
+	const acceptMimeTypes = SUPPORTED_INPUT_MIME_TYPES.join(",");
 
 	const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
 		onFilesSelected(event.target.files);
@@ -57,8 +52,11 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 					className="hidden"
 				/>
 				<p className="text-sm text-gray-700">Drop your files here or click to browse.</p>
-				<p className="text-xs text-gray-500">Supported formats: jpg, png, gif, svg, webp</p>
+				<p className="text-xs text-gray-500">
+					Supported formats: jpg, png, gif, svg, webp — max {formatBytes(MAX_TOTAL_BYTES)}
+				</p>
 			</label>
+			{errorMessage ? <p className="text-xs text-red-600">{errorMessage}</p> : null}
 		</SimpleBlock>
 	);
 };
