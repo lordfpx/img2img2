@@ -1,4 +1,5 @@
 import { ConversionList } from "@/components/ConversionList";
+import { ConversionProgressBar } from "@/components/ConversionProgressBar";
 import { ConversionStats } from "@/components/ConversionStats";
 import { FileUpload } from "@/components/FileUpload";
 import { GlobalQualityControl } from "@/components/GlobalQualityControl";
@@ -13,6 +14,7 @@ const App = () => {
 		globalGifOptions,
 		globalPngOptions,
 		averageReduction,
+		conversionProgress,
 		uploadError,
 		hasItems,
 		hasDownloadableItems,
@@ -33,8 +35,23 @@ const App = () => {
 		downloadAll,
 	} = useConversionController();
 
+	const fallbackOriginalTotal = items.reduce((acc, item) => acc + item.originalSize, 0);
+	const fallbackConvertedTotal = items.reduce(
+		(acc, item) => acc + (item.convertedBlob?.size ?? 0),
+		0,
+	);
+	const fallbackDelta = fallbackOriginalTotal - fallbackConvertedTotal;
+	const fallbackRatio =
+		fallbackOriginalTotal > 0 ? (fallbackDelta / fallbackOriginalTotal) * 100 : 0;
+	const summaryData = averageReduction ?? {
+		originalTotal: fallbackOriginalTotal,
+		convertedTotal: fallbackConvertedTotal,
+		delta: fallbackDelta,
+		ratio: fallbackRatio,
+	};
+
 	return (
-		<div className="min-h-screen bg-gray-100 pb-16">
+		<div className="min-h-screen pb-16">
 			<Header
 				onClearAll={clearAll}
 				onDownloadAll={downloadAll}
@@ -65,15 +82,13 @@ const App = () => {
 						<FileUpload onFilesSelected={handleFiles} errorMessage={uploadError} />
 					</div>
 
-					{averageReduction ? (
 						<ConversionStats
-							originalTotal={averageReduction.originalTotal}
-							convertedTotal={averageReduction.convertedTotal}
-							delta={averageReduction.delta}
-							ratio={averageReduction.ratio}
+							originalTotal={summaryData.originalTotal}
+							convertedTotal={summaryData.convertedTotal}
+							delta={summaryData.delta}
+							ratio={summaryData.ratio}
 						/>
-					) : null}
-				</div>
+					</div>
 
 				<section className="flex flex-col gap-4">
 					<ConversionList
@@ -89,6 +104,15 @@ const App = () => {
 					/>
 				</section>
 			</main>
+
+			{conversionProgress ? (
+				<ConversionProgressBar
+					value={conversionProgress.value}
+					completed={conversionProgress.completed}
+					total={conversionProgress.total}
+					isActive={conversionProgress.isActive}
+				/>
+			) : null}
 		</div>
 	);
 };

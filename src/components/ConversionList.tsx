@@ -1,5 +1,3 @@
-import type { ChangeEvent } from "react";
-
 import { ConversionItem } from "@/components/ConversionItem";
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
 import type {
@@ -13,7 +11,7 @@ interface ConversionListProps {
 	items: ConversionItemType[];
 	globalFormat: OutputFormat;
 	onFormatChange: (id: string, format: OutputFormat) => void;
-	onQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
+	onQualityChange: (id: string, value: number) => void;
 	onUseGlobalSettingsChange: (id: string, useGlobal: boolean) => void;
 	onGifOptionsChange: (id: string, options: Partial<GifConversionOptions>) => void;
 	onPngOptionsChange: (id: string, options: Partial<PngConversionOptions>) => void;

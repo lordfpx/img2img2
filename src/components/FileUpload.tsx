@@ -3,7 +3,7 @@ import { type ChangeEvent, type DragEvent, useState } from "react";
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
 import { SimpleTitle } from "@/components/ui/SimpleTitle";
 import { SUPPORTED_INPUT_MIME_TYPES } from "@/lib/imageConversion";
-import { MAX_TOTAL_BYTES } from "@/lib/uploadLimits";
+import { MAX_FILE_BYTES, MAX_TOTAL_BYTES } from "@/lib/uploadLimits";
 import { formatBytes } from "@/lib/utils";
 
 interface FileUploadProps {
@@ -53,7 +53,8 @@ export const FileUpload = ({ onFilesSelected, errorMessage }: FileUploadProps) =
 				/>
 				<p className="text-sm text-gray-700">Drop your files here or click to browse.</p>
 				<p className="text-xs text-gray-500">
-					Supported formats: jpg, png, gif, svg, webp — max {formatBytes(MAX_TOTAL_BYTES)}
+					Formats supportés : jpg, png, gif, svg, webp — {formatBytes(MAX_FILE_BYTES)} max par image,
+					{formatBytes(MAX_TOTAL_BYTES)} au total
 				</p>
 			</label>
 			{errorMessage ? <p className="text-xs text-red-600">{errorMessage}</p> : null}

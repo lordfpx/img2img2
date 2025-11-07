@@ -1,5 +1,5 @@
 import { saveAs } from "file-saver";
-import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createArchiveFromConversions } from "@/lib/downloadAll";
 import {
@@ -9,7 +9,7 @@ import {
 	type OutputFormat,
 	type PngConversionOptions,
 } from "@/lib/imageConversion";
-import { MAX_TOTAL_BYTES } from "@/lib/uploadLimits";
+import { MAX_FILE_BYTES, MAX_TOTAL_BYTES } from "@/lib/uploadLimits";
 import { createId, formatBytes } from "@/lib/utils";
 import {
 	type ConversionItem,
@@ -36,13 +36,19 @@ interface UseConversionControllerResult {
 		delta: number;
 		ratio: number;
 	} | null;
+	conversionProgress: {
+		value: number;
+		completed: number;
+		total: number;
+		isActive: boolean;
+	} | null;
 	uploadError: string | null;
 	hasItems: boolean;
 	hasDownloadableItems: boolean;
 	isExporting: boolean;
 	handleFiles: (files: FileList | null) => void;
 	handleFormatChange: (id: string, format: OutputFormat) => void;
-	handleQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
+	handleQualityChange: (id: string, value: number) => void;
 	handleUseGlobalSettingsChange: (id: string, useGlobal: boolean) => void;
 	handleGifOptionsChange: (id: string, options: Partial<GifConversionOptions>) => void;
 	handlePngOptionsChange: (id: string, options: Partial<PngConversionOptions>) => void;
@@ -166,11 +172,17 @@ export const useConversionController = (): UseConversionControllerResult => {
 			const additions: ConversionItem[] = [];
 			const unsupportedFiles: string[] = [];
 			const oversizedFiles: string[] = [];
-			const limitLabel = formatBytes(MAX_TOTAL_BYTES);
+			const tooLargeFiles: string[] = [];
+			const totalLimitLabel = formatBytes(MAX_TOTAL_BYTES);
+			const singleLimitLabel = formatBytes(MAX_FILE_BYTES);
 			let runningTotal = itemsRef.current.reduce((acc, item) => acc + item.originalSize, 0);
 			for (const file of files) {
 				if (!isSupportedInputFile(file)) {
 					unsupportedFiles.push(file.name);
+					continue;
+				}
+				if (file.size > MAX_FILE_BYTES) {
+					tooLargeFiles.push(file.name);
 					continue;
 				}
 				if (runningTotal + file.size > MAX_TOTAL_BYTES) {
@@ -206,19 +218,26 @@ export const useConversionController = (): UseConversionControllerResult => {
 			if (unsupportedFiles.length > 0) {
 				messages.push(
 					unsupportedFiles.length === 1
-						? `The file format of "${unsupportedFiles[0]}" is not supported.`
-						: `The file formats of the following files are not supported: ${unsupportedFiles.join(
+						? `Le format du fichier "${unsupportedFiles[0]}" n'est pas supporté.`
+						: `Les formats des fichiers suivants ne sont pas supportés : ${unsupportedFiles.join(", ")}.`,
+				);
+			}
+			if (tooLargeFiles.length > 0) {
+				messages.push(
+					tooLargeFiles.length === 1
+						? `Impossible d'ajouter "${tooLargeFiles[0]}" car il dépasse ${singleLimitLabel}.`
+						: `Impossible d'ajouter ces fichiers (${tooLargeFiles.join(
 								", ",
-							)}.`,
+							)}) car chacun dépasse ${singleLimitLabel}.`,
 				);
 			}
 			if (oversizedFiles.length > 0) {
 				messages.push(
 					oversizedFiles.length === 1
-						? `Could not add "${oversizedFiles[0]}" because the total size would exceed ${limitLabel}.`
-						: `Could not add these files (${oversizedFiles.join(
+						? `Impossible d'ajouter "${oversizedFiles[0]}" car la taille totale dépasserait ${totalLimitLabel}.`
+						: `Impossible d'ajouter ces fichiers (${oversizedFiles.join(
 								", ",
-							)}) because the total size would exceed ${limitLabel}.`,
+							)}) car la taille totale dépasserait ${totalLimitLabel}.`,
 				);
 			}
 			setUploadError(messages.length > 0 ? messages.join(" ") : null);
@@ -270,9 +289,8 @@ export const useConversionController = (): UseConversionControllerResult => {
 	);
 
 	const handleQualityChange = useCallback(
-		(id: string, event: ChangeEvent<HTMLInputElement>) => {
-			const quality = Number(event.target.value);
-			scheduleConversion(id, { quality, usesGlobalQuality: false });
+		(id: string, value: number) => {
+			scheduleConversion(id, { quality: value, usesGlobalQuality: false });
 		},
 		[scheduleConversion],
 	);
@@ -448,6 +466,19 @@ export const useConversionController = (): UseConversionControllerResult => {
 
 	const hasDownloadableItems = useMemo(() => items.some((item) => item.convertedBlob), [items]);
 
+	const conversionProgress = useMemo(() => {
+		if (items.length === 0) return null;
+		const completed = items.filter((item) => item.status === "done").length;
+		const total = items.length;
+		const isActive = items.some((item) => item.status === "processing");
+		return {
+			value: total === 0 ? 0 : completed / total,
+			completed,
+			total,
+			isActive,
+		};
+	}, [items]);
+
 	const downloadAll = useCallback(async () => {
 		if (isExporting) return;
 		const ready = itemsRef.current.filter((item) => item.convertedBlob);
@@ -470,6 +501,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 		globalGifOptions,
 		globalPngOptions,
 		averageReduction,
+		conversionProgress,
 		uploadError,
 		hasItems: items.length > 0,
 		hasDownloadableItems,

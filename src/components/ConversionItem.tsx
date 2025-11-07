@@ -1,4 +1,4 @@
-import { type ChangeEvent, memo, useCallback, useMemo } from "react";
+import { type ChangeEvent, memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { ComparePreview } from "@/components/conversion-item/ComparePreview";
 import { FormatSelector } from "@/components/conversion-item/FormatSelector";
@@ -18,7 +18,7 @@ interface ConversionItemProps {
 	item: ConversionItemType;
 	globalFormat: OutputFormat;
 	onFormatChange: (id: string, format: OutputFormat) => void;
-	onQualityChange: (id: string, event: ChangeEvent<HTMLInputElement>) => void;
+	onQualityChange: (id: string, value: number) => void;
 	onUseGlobalSettingsChange: (id: string, useGlobal: boolean) => void;
 	onGifOptionsChange: (id: string, options: Partial<GifConversionOptions>) => void;
 	onPngOptionsChange: (id: string, options: Partial<PngConversionOptions>) => void;
@@ -84,10 +84,24 @@ const ConversionItemComponent = ({
 		[item.id, onUseGlobalSettingsChange],
 	);
 
-	const handleQualityChange = useCallback(
-		(event: ChangeEvent<HTMLInputElement>) => onQualityChange(item.id, event),
-		[item.id, onQualityChange],
-	);
+	const [qualityDraft, setQualityDraft] = useState(item.quality);
+
+	useEffect(() => {
+		setQualityDraft(item.quality);
+	}, [item.quality]);
+
+	useEffect(() => {
+		if (qualityDisabled) return;
+		if (qualityDraft === item.quality) return;
+		const handle = window.setTimeout(() => {
+			onQualityChange(item.id, qualityDraft);
+		}, 300);
+		return () => window.clearTimeout(handle);
+	}, [qualityDisabled, qualityDraft, item.id, item.quality, onQualityChange]);
+
+	const handleQualityInputChange = useCallback((value: number) => {
+		setQualityDraft(value);
+	}, []);
 
 	const updateGifOptions = useCallback(
 		(options: Partial<GifConversionOptions>) => onGifOptionsChange(item.id, options),
@@ -132,27 +146,27 @@ const ConversionItemComponent = ({
 			</div>
 
 			<div className="mx-auto flex max-w-5xl flex-col gap-4">
-				<div className="grid gap-4 md:grid-cols-2">
-					<FormatSelector
-						value={item.targetFormat}
-						disabled={formatDisabled}
-						usesGlobalSettings={usesGlobalSettings}
-						globalFormatLabel={globalFormatLabel}
-						onFormatChange={handleFormatSelect}
-						onUseGlobalToggle={handleUseGlobalToggle}
-					/>
-					<SettingsControls
-						targetFormat={item.targetFormat}
-						quality={item.quality}
-						qualityDisabled={qualityDisabled}
-						gifOptions={item.gifOptions}
-						pngOptions={item.pngOptions}
-						settingsDisabled={settingsDisabled}
-						onQualityChange={handleQualityChange}
-						onGifOptionsChange={updateGifOptions}
-						onPngOptionsChange={updatePngOptions}
-					/>
-				</div>
+					<div className="grid gap-4 md:grid-cols-2">
+						<FormatSelector
+							value={item.targetFormat}
+							disabled={formatDisabled}
+							usesGlobalSettings={usesGlobalSettings}
+							globalFormatLabel={globalFormatLabel}
+							onFormatChange={handleFormatSelect}
+							onUseGlobalToggle={handleUseGlobalToggle}
+						/>
+						<SettingsControls
+							targetFormat={item.targetFormat}
+							quality={qualityDraft}
+							qualityDisabled={qualityDisabled}
+							gifOptions={item.gifOptions}
+							pngOptions={item.pngOptions}
+							settingsDisabled={settingsDisabled}
+							onQualityChange={handleQualityInputChange}
+							onGifOptionsChange={updateGifOptions}
+							onPngOptionsChange={updatePngOptions}
+						/>
+					</div>
 			</div>
 
 			<div className="flex flex-col gap-4 md:flex-row">

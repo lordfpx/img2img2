@@ -1,4 +1,4 @@
-import { type ChangeEvent, memo } from "react";
+import { memo } from "react";
 
 import { SimpleBlock } from "@/components/ui/SimpleBlock";
 import { SimpleField } from "@/components/ui/SimpleField";
@@ -16,7 +16,7 @@ interface SettingsControlsProps {
 	gifOptions: GifConversionOptions;
 	pngOptions: PngConversionOptions;
 	settingsDisabled: boolean;
-	onQualityChange: (event: ChangeEvent<HTMLInputElement>) => void;
+	onQualityChange: (value: number) => void;
 	onGifOptionsChange: (options: Partial<GifConversionOptions>) => void;
 	onPngOptionsChange: (options: Partial<PngConversionOptions>) => void;
 }
@@ -60,7 +60,7 @@ export const SettingsControls = memo(
 interface QualityControlsProps {
 	value: number;
 	disabled: boolean;
-	onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+	onChange: (value: number) => void;
 }
 
 const QualityControls = memo(({ value, disabled, onChange }: QualityControlsProps) => (
@@ -73,7 +73,7 @@ const QualityControls = memo(({ value, disabled, onChange }: QualityControlsProp
 				step={1}
 				value={value}
 				disabled={disabled}
-				onChange={onChange}
+				onChange={(event) => onChange(Number(event.target.value))}
 				className="h-2 w-full disabled:opacity-50"
 			/>
 			<span className="w-12 text-sm text-gray-600">{value}</span>

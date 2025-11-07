@@ -60,7 +60,6 @@ export const ComparePreview = memo(
 				/>
 			</div>
 
-			{status === "processing" ? <p className="text-xs text-gray-600">Converting…</p> : null}
 			{status === "error" ? (
 				<p className="text-xs text-red-600">{error ?? "Something went wrong."}</p>
 			) : null}
