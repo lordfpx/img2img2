@@ -39,7 +39,7 @@ export const GlobalQualityControl = ({
 					step={1}
 					value={quality}
 					onChange={(event) => onQualityChange(Number(event.target.value))}
-					className="h-1 w-full"
+					className="h-2 w-full"
 				/>
 				<span className="w-12 text-sm text-gray-600">{quality}</span>
 			</div>
@@ -64,7 +64,7 @@ export const GlobalQualityControl = ({
 								step={1}
 								value={gifOptions.colorCount}
 								onChange={(event) => onGifOptionsChange({ colorCount: Number(event.target.value) })}
-								className="h-1 w-full"
+								className="h-2 w-full"
 							/>
 							<span className="w-12 text-right">{gifOptions.colorCount}</span>
 						</div>
@@ -152,7 +152,7 @@ export const GlobalQualityControl = ({
 								value={pngOptions.colorCount}
 								disabled={!pngOptions.reduceColors}
 								onChange={(event) => onPngOptionsChange({ colorCount: Number(event.target.value) })}
-								className="h-1 w-full disabled:opacity-40"
+								className="h-2 w-full disabled:opacity-40"
 							/>
 							<span className="w-12 text-right">{pngOptions.colorCount}</span>
 						</div>

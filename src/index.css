@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
-body {
-	@apply bg-gray-100 text-gray-900 antialiased;
+@layer base {
+	body {
+		@apply bg-gray-100 text-gray-900 antialiased;
+	}
+}
+
+@layer components {
+	.u-checkboard {
+		background: conic-gradient(#ddd 25%, #fff 0 50%, #ddd 0 75%, #fff 0);
+		background-size: 50px 50px;
+	}
 }

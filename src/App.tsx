@@ -43,8 +43,8 @@ const App = () => {
 			/>
 
 			<main className="flex flex-col">
-				<div className="mx-auto max-w-5xl flex flex-col gap-6 px-4 py-6 w-full">
-					<div className="grid grid-cols-2 gap-4">
+				<div className="mx-auto max-w-5xl px-2 py-2 md:py-4 lg:py-6 w-full flex flex-col gap-2 md:gap-4 lg:gap-6">
+					<div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-6">
 						<GlobalQualityControl
 							format={globalFormat}
 							onFormatChange={handleGlobalFormatChange}

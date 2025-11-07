@@ -15,8 +15,11 @@ export const SimpleButton = ({
 		<button
 			type={type}
 			className={clsx(
-				"border px-3 py-2 text-sm ",
-				variant === "default" ? "bg-blue-500 text-white border-blue-500" : "bg-white text-gray-900 border-gray-400",
+				"border px-3 py-1.5 text-m font-bold cursor-pointer transition-colors",
+				{
+					"bg-blue-500 text-white border-blue-500 hover:bg-blue-700": variant === "default",
+					"bg-white text-gray-900 border-gray-400 hover:bg-gray-200": variant === "outline",
+				},
 				className,
 			)}
 			{...props}

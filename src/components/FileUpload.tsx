@@ -33,7 +33,7 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 	};
 
 	return (
-		<SimpleBlock className="space-y-4">
+		<SimpleBlock className="space-y-3">
 			<SimpleTitle>Upload images</SimpleTitle>
 			<label
 				htmlFor="file-upload"
@@ -44,7 +44,7 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 				onDragLeave={() => setIsDragging(false)}
 				onDrop={onDrop}
 				className={clsx(
-					"flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-gray-400 bg-white p-8 text-center",
+					"flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-gray-400 bg-white p-4 lg:p-8 text-center",
 					isDragging && "bg-gray-50",
 				)}
 			>
@@ -57,7 +57,7 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 					className="hidden"
 				/>
 				<p className="text-sm text-gray-700">Drop your files here or click to browse.</p>
-				<p className="text-xs text-gray-500">Supported formats: jpg, png, gif, svg, webp…</p>
+				<p className="text-xs text-gray-500">Supported formats: jpg, png, gif, svg, webp</p>
 			</label>
 		</SimpleBlock>
 	);
