@@ -53,7 +53,8 @@ export const FileUpload = ({ onFilesSelected, errorMessage }: FileUploadProps) =
 				/>
 				<p className="text-sm text-gray-700">Drop your files here or click to browse.</p>
 				<p className="text-xs text-gray-500">
-					Formats supportés : jpg, png, gif, svg, webp — {formatBytes(MAX_FILE_BYTES)} max par image,
+					Formats supportés : jpg, png, gif, svg, webp — {formatBytes(MAX_FILE_BYTES)} max par
+					image,
 					{formatBytes(MAX_TOTAL_BYTES)} au total
 				</p>
 			</label>

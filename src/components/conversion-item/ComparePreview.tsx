@@ -20,7 +20,7 @@ export const ComparePreview = memo(
 		error,
 		onSplitChange,
 	}: ComparePreviewProps) => (
-		<div className="flex-1 space-y-2 max-sm:-ml-4 max-sm:-mr-4">
+		<div className="flex-1 space-y-2 max-sm:-ml-2 max-sm:-mr-2">
 			<div className="relative pb-6 border border-gray-300">
 				<div className="relative flex aspect-square lg:aspect-video items-center justify-center bg-white u-checkboard">
 					<img
