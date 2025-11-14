@@ -32,7 +32,7 @@ export const ConversionList = ({
 }: ConversionListProps) => {
 	if (items.length === 0) {
 		return (
-			<SimpleBlock>
+			<SimpleBlock className="ConversionList mb-4">
 				<p className="text-sm text-gray-700">Upload an image to start the conversion.</p>
 			</SimpleBlock>
 		);
