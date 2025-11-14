@@ -24,16 +24,16 @@ export const ComparePreview = memo(
 			<div className="relative pb-6 border border-gray-300">
 				<div className="relative flex aspect-square lg:aspect-video items-center justify-center bg-white u-checkboard">
 					<img
-						src={originalUrl}
-						alt="Original"
+						src={convertedUrl ?? originalUrl}
+						alt={convertedUrl ? "Converted" : "Original"}
 						loading="lazy"
 						className="h-full w-full object-contain"
 					/>
 
 					{convertedUrl ? (
 						<img
-							src={convertedUrl}
-							alt="Converted"
+							src={originalUrl}
+							alt="Original"
 							loading="lazy"
 							className="absolute inset-0 h-full w-full object-contain"
 							style={{ clipPath: `inset(0 ${100 - compareSplit}% 0 0)` }}
@@ -46,8 +46,8 @@ export const ComparePreview = memo(
 					></div>
 
 					<div className="pointer-events-none absolute inset-0 flex items-start justify-between text-xs text-gray-700">
-						<span className="bg-slate-300 px-2 py-1">Converted</span>
 						<span className="bg-slate-300 px-2 py-1">Original</span>
+						<span className="bg-slate-300 px-2 py-1">Converted</span>
 					</div>
 				</div>
 				<input
