@@ -15,10 +15,12 @@ export const SimpleButton = ({
 		<button
 			type={type}
 			className={clsx(
-				"border px-3 py-1.5 text-m font-bold cursor-pointer transition-colors",
+				"border px-3 py-1.5 text-m font-bold cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
 				{
-					"bg-blue-500 text-white border-blue-500 hover:bg-blue-700": variant === "default",
-					"bg-white text-gray-900 border-gray-400 hover:bg-gray-200": variant === "outline",
+					"bg-accent text-accent-foreground border-accent hover:bg-accent/80":
+						variant === "default",
+					"bg-surface text-foreground border-border hover:bg-surface-muted":
+						variant === "outline",
 				},
 				className,
 			)}

@@ -31,32 +31,34 @@ export const ItemStats = memo(
 		onDownload,
 	}: ItemStatsProps) => (
 		<div className="flex w-full flex-row gap-3 justify-center md:justify-end items-center">
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-x-3 md:gap-x-6 gap-y-1 border border-gray-300 bg-white p-2 md:p-3 text-sm text-gray-700 ">
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-x-3 md:gap-x-6 gap-y-1 border border-border bg-surface p-2 md:p-3 text-sm text-muted-foreground">
 				<div className="flex justify-between gap-4 md:gap-4">
 					<span>Source format</span>
-					<span className="font-bold text-gray-900">{fileType}</span>
+					<span className="font-bold text-foreground">{fileType}</span>
 				</div>
 
 				<div className="flex justify-between gap-4 md:gap-5">
 					<span>Dimensions</span>
-					<span className="font-bold text-gray-900">
+					<span className="font-bold text-foreground">
 						{width && height ? `${width} × ${height}px` : "Processing"}
 					</span>
 				</div>
 
 				<div className="flex justify-between gap-4 md:gap-5">
 					<span>Target format</span>
-					<span className="font-bold text-gray-900">{formatLabel}</span>
+					<span className="font-bold text-foreground">{formatLabel}</span>
 				</div>
 
 				<div className="flex justify-between gap-4 md:gap-5">
 					<span>Original size</span>
-					<span className="font-bold text-gray-900">{formatBytes(originalSize)}</span>
+					<span className="font-bold text-foreground">
+						{formatBytes(originalSize)}
+					</span>
 				</div>
 
 				<div className="flex justify-between gap-4 md:gap-5">
 					<span>Converted size</span>
-					<span className="font-bold text-gray-900">
+					<span className="font-bold text-foreground">
 						{convertedSize !== null ? formatBytes(convertedSize) : "—"}
 					</span>
 				</div>
@@ -64,7 +66,7 @@ export const ItemStats = memo(
 				{gainRatio !== null && delta !== null ? (
 					<div className="flex justify-between gap-4 md:gap-5">
 						<span>Savings</span>
-						<span className="font-bold text-gray-900">
+						<span className="font-bold text-foreground">
 							{formatBytes(delta)} ({gainRatio.toFixed(1)}%)
 						</span>
 					</div>

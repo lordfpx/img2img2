@@ -146,12 +146,12 @@ const ConversionItemComponent = ({
 			</div>
 
 			<div className="mx-auto flex max-w-5xl flex-col gap-4">
-				<label className="flex items-center gap-2 text-xs text-gray-600">
+				<label className="flex items-center gap-2 text-xs text-muted-foreground">
 					<input
 						type="checkbox"
 						checked={usesGlobalSettings}
 						onChange={handleUseGlobalToggle}
-						className="h-4 w-4 border border-gray-400"
+						className="h-4 w-4 border border-border"
 					/>
 					<b>Use default settings</b> - {globalFormatLabel}
 				</label>

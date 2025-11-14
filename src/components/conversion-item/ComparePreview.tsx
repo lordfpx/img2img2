@@ -21,8 +21,8 @@ export const ComparePreview = memo(
 		onSplitChange,
 	}: ComparePreviewProps) => (
 		<div className="flex-1 space-y-2 max-sm:-ml-2 max-sm:-mr-2">
-			<div className="relative pb-6 border border-gray-300">
-				<div className="relative flex aspect-square lg:aspect-video items-center justify-center bg-white u-checkboard">
+			<div className="relative pb-6 border border-border">
+				<div className="relative flex aspect-square lg:aspect-video items-center justify-center bg-surface u-checkboard">
 					<img
 						src={convertedUrl ?? originalUrl}
 						alt={convertedUrl ? "Converted" : "Original"}
@@ -41,13 +41,13 @@ export const ComparePreview = memo(
 					) : null}
 
 					<div
-						className={`h-full border-l border-l-black border-r border-r-white opacity-50 w-px absolute top-0 bottom-0 translate-x-1/2 transition-transform`}
+						className={`h-full border-l border-l-foreground/70 border-r border-r-background/70 opacity-50 w-px absolute top-0 bottom-0 translate-x-1/2 transition-transform`}
 						style={{ left: `${compareSplit}%` }}
 					></div>
 
-					<div className="pointer-events-none absolute inset-0 flex items-start justify-between text-xs text-gray-700">
-						<span className="bg-slate-300 px-2 py-1">Original</span>
-						<span className="bg-slate-300 px-2 py-1">Converted</span>
+					<div className="pointer-events-none absolute inset-0 flex items-start justify-between text-xs text-muted-foreground">
+						<span className="bg-surface-muted px-2 py-1">Original</span>
+						<span className="bg-surface-muted px-2 py-1">Converted</span>
 					</div>
 				</div>
 				<input

@@ -6,6 +6,7 @@ import { GlobalQualityControl } from "@/components/GlobalQualityControl";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { useConversionController } from "@/hooks/useConversionController";
+import { ColorPalettePreview } from "./components/dev/ColorPalettePreview";
 
 const App = () => {
 	const {
@@ -63,7 +64,7 @@ const App = () => {
 
 			<main className="flex flex-1 flex-col gap-4 mb-6">
 				<div className="mx-auto max-w-5xl px-2 py-2 md:py-4 lg:py-6 w-full flex flex-col gap-2 md:gap-4 lg:gap-6">
-					<p className="text-gray-900">
+					<p className="text-foreground">
 						This application will help you convert images between different formats and visualize
 						the differences.
 					</p>
@@ -105,6 +106,8 @@ const App = () => {
 					/>
 				</section>
 			</main>
+
+			{/* <ColorPalettePreview /> */}
 
 			<Footer />
 
