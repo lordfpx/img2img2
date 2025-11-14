@@ -6,7 +6,7 @@ import { GlobalQualityControl } from "@/components/GlobalQualityControl";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { useConversionController } from "@/hooks/useConversionController";
-import { ColorPalettePreview } from "./components/dev/ColorPalettePreview";
+// import { ColorPalettePreview } from "./components/dev/ColorPalettePreview";
 
 const App = () => {
 	const {
