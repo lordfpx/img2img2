@@ -7,5 +7,7 @@ interface SimpleBlockProps {
 }
 
 export const SimpleBlock = ({ children, className }: SimpleBlockProps) => {
-	return <div className={clsx("border border-gray-300 bg-white p-4", className)}>{children}</div>;
+	return (
+		<div className={clsx("border border-gray-300 bg-white p-2 md:p-4", className)}>{children}</div>
+	);
 };

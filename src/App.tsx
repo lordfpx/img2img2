@@ -82,13 +82,13 @@ const App = () => {
 						<FileUpload onFilesSelected={handleFiles} errorMessage={uploadError} />
 					</div>
 
-						<ConversionStats
-							originalTotal={summaryData.originalTotal}
-							convertedTotal={summaryData.convertedTotal}
-							delta={summaryData.delta}
-							ratio={summaryData.ratio}
-						/>
-					</div>
+					<ConversionStats
+						originalTotal={summaryData.originalTotal}
+						convertedTotal={summaryData.convertedTotal}
+						delta={summaryData.delta}
+						ratio={summaryData.ratio}
+					/>
+				</div>
 
 				<section className="flex flex-col gap-4">
 					<ConversionList

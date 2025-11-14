@@ -146,30 +146,37 @@ const ConversionItemComponent = ({
 			</div>
 
 			<div className="mx-auto flex max-w-5xl flex-col gap-4">
-					<div className="grid gap-4 md:grid-cols-2">
-						<FormatSelector
-							value={item.targetFormat}
-							disabled={formatDisabled}
-							usesGlobalSettings={usesGlobalSettings}
-							globalFormatLabel={globalFormatLabel}
-							onFormatChange={handleFormatSelect}
-							onUseGlobalToggle={handleUseGlobalToggle}
-						/>
-						<SettingsControls
-							targetFormat={item.targetFormat}
-							quality={qualityDraft}
-							qualityDisabled={qualityDisabled}
-							gifOptions={item.gifOptions}
-							pngOptions={item.pngOptions}
-							settingsDisabled={settingsDisabled}
-							onQualityChange={handleQualityInputChange}
-							onGifOptionsChange={updateGifOptions}
-							onPngOptionsChange={updatePngOptions}
-						/>
-					</div>
+				<label className="flex items-center gap-2 text-xs text-gray-600">
+					<input
+						type="checkbox"
+						checked={usesGlobalSettings}
+						onChange={handleUseGlobalToggle}
+						className="h-4 w-4 border border-gray-400"
+					/>
+					<b>Use default settings</b> - {globalFormatLabel}
+				</label>
+
+				<div className="grid gap-4 md:grid-cols-2">
+					<FormatSelector
+						value={item.targetFormat}
+						disabled={formatDisabled}
+						onFormatChange={handleFormatSelect}
+					/>
+					<SettingsControls
+						targetFormat={item.targetFormat}
+						quality={qualityDraft}
+						qualityDisabled={qualityDisabled}
+						gifOptions={item.gifOptions}
+						pngOptions={item.pngOptions}
+						settingsDisabled={settingsDisabled}
+						onQualityChange={handleQualityInputChange}
+						onGifOptionsChange={updateGifOptions}
+						onPngOptionsChange={updatePngOptions}
+					/>
+				</div>
 			</div>
 
-			<div className="flex flex-col gap-4 md:flex-row">
+			<div className="flex flex-col gap-4">
 				<ComparePreview
 					originalUrl={item.originalUrl}
 					convertedUrl={item.convertedUrl}
@@ -180,8 +187,6 @@ const ConversionItemComponent = ({
 				/>
 
 				<ItemStats
-					status={item.status}
-					error={item.error}
 					fileType={item.file.type || "Auto"}
 					formatLabel={formatLabel}
 					width={item.width}
