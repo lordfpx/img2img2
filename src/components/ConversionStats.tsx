@@ -16,25 +16,33 @@ export const ConversionStats = ({
 	ratio,
 }: ConversionStatsProps) => {
 	return (
-		<SimpleBlock className="space-y-3 text-sm text-gray-700">
+		<SimpleBlock className="space-y-3 text-sm text-muted-foreground">
 			<SimpleTitle>Summary</SimpleTitle>
 
 			<div className="grid gap-2 grid-cols-4">
-				<div className="border border-gray-300 bg-white p-1 md:p-3">
-					<p className="text-xs uppercase text-gray-500">Original</p>
-					<p className="text-base font-medium text-gray-900">{formatBytes(originalTotal)}</p>
+				<div className="border border-border bg-surface p-1 md:p-3">
+					<p className="text-xs uppercase text-subtle-foreground">Original</p>
+					<p className="text-base font-medium text-foreground">
+						{formatBytes(originalTotal)}
+					</p>
 				</div>
-				<div className="border border-gray-300 bg-white p-1 md:p-3">
-					<p className="text-xs uppercase text-gray-500">Converted</p>
-					<p className="text-base font-medium text-gray-900">{formatBytes(convertedTotal)}</p>
+				<div className="border border-border bg-surface p-1 md:p-3">
+					<p className="text-xs uppercase text-subtle-foreground">Converted</p>
+					<p className="text-base font-medium text-foreground">
+						{formatBytes(convertedTotal)}
+					</p>
 				</div>
-				<div className="border border-gray-300 bg-white p-1 md:p-3">
-					<p className="text-xs uppercase text-gray-500">Savings</p>
-					<p className="text-base font-medium text-gray-900">{formatBytes(delta)}</p>
+				<div className="border border-border bg-surface p-1 md:p-3">
+					<p className="text-xs uppercase text-subtle-foreground">Savings</p>
+					<p className="text-base font-medium text-foreground">
+						{formatBytes(delta)}
+					</p>
 				</div>
-				<div className="border border-gray-300 bg-white p-1 md:p-3">
-					<p className="text-xs uppercase text-gray-500">Average reduction</p>
-					<p className="text-base font-medium text-gray-900">{ratio.toFixed(1)}%</p>
+				<div className="border border-border bg-surface p-1 md:p-3">
+					<p className="text-xs uppercase text-subtle-foreground">Average reduction</p>
+					<p className="text-base font-medium text-foreground">
+						{ratio.toFixed(1)}%
+					</p>
 				</div>
 			</div>
 		</SimpleBlock>

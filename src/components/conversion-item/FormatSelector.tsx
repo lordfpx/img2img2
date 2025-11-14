@@ -16,7 +16,7 @@ export const FormatSelector = memo(({ value, disabled, onFormatChange }: FormatS
 			value={value}
 			onChange={onFormatChange}
 			disabled={disabled}
-			className="w-full border border-gray-400 bg-white px-2 py-2 text-sm disabled:opacity-60"
+			className="w-full border border-border bg-surface px-2 py-2 text-sm text-foreground transition disabled:opacity-60"
 		>
 			{formatOptions.map((option) => (
 				<option key={option.value} value={option.value}>

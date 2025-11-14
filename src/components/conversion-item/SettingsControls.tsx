@@ -76,7 +76,7 @@ const QualityControls = memo(({ value, disabled, onChange }: QualityControlsProp
 				onChange={(event) => onChange(Number(event.target.value))}
 				className="h-2 w-full disabled:opacity-50"
 			/>
-			<span className="w-12 text-sm text-gray-600">{value}</span>
+			<span className="w-12 text-sm text-muted-foreground">{value}</span>
 		</div>
 	</SimpleField>
 ));
@@ -94,7 +94,7 @@ const GifOptionsControls = memo(({ options, disabled, onChange }: GifOptionsCont
 			<SimpleTitle as="h4" className="text-base">
 				GIF options
 			</SimpleTitle>
-			<div className="space-y-3 text-sm text-gray-700">
+			<div className="space-y-3 text-sm text-muted-foreground">
 				<label className="flex flex-col gap-1">
 					<span>Number of colors</span>
 					<div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ const GifOptionsControls = memo(({ options, disabled, onChange }: GifOptionsCont
 						onChange={(event) =>
 							onChange({ dithering: event.target.value as GifConversionOptions["dithering"] })
 						}
-						className="w-full border border-gray-400 bg-white px-2 py-2 text-sm disabled:opacity-60"
+						className="w-full border border-border bg-surface px-2 py-2 text-sm text-foreground transition disabled:opacity-60"
 					>
 						<option value="none">None</option>
 						<option value="floyd-steinberg">Floyd-Steinberg</option>
@@ -133,7 +133,7 @@ const GifOptionsControls = memo(({ options, disabled, onChange }: GifOptionsCont
 						checked={options.preserveAlpha}
 						disabled={disabled}
 						onChange={(event) => onChange({ preserveAlpha: event.target.checked })}
-						className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						className="h-4 w-4 border border-border disabled:opacity-50"
 					/>
 					<span>Preserve transparency</span>
 				</label>
@@ -146,7 +146,7 @@ const GifOptionsControls = memo(({ options, disabled, onChange }: GifOptionsCont
 							value={options.backgroundColor}
 							disabled={disabled}
 							onChange={(event) => onChange({ backgroundColor: event.target.value })}
-							className="h-8 w-12 border border-gray-400 bg-white disabled:opacity-60"
+							className="h-8 w-12 border border-border bg-surface disabled:opacity-60"
 						/>
 					</label>
 				) : null}
@@ -159,7 +159,7 @@ const GifOptionsControls = memo(({ options, disabled, onChange }: GifOptionsCont
 						value={options.loopCount}
 						disabled={disabled}
 						onChange={(event) => onChange({ loopCount: Number(event.target.value) })}
-						className="w-full border border-gray-400 px-2 py-2 text-sm disabled:opacity-60"
+						className="w-full border border-border px-2 py-2 text-sm text-foreground transition disabled:opacity-60"
 					/>
 				</label>
 			</div>
@@ -180,14 +180,14 @@ const PngOptionsControls = memo(({ options, disabled, onChange }: PngOptionsCont
 			<SimpleTitle as="h4" className="text-base">
 				PNG options
 			</SimpleTitle>
-			<div className="space-y-3 text-sm text-gray-700">
+			<div className="space-y-3 text-sm text-muted-foreground">
 				<label className="flex items-center gap-2">
 					<input
 						type="checkbox"
 						checked={options.reduceColors}
 						disabled={disabled}
 						onChange={(event) => onChange({ reduceColors: event.target.checked })}
-						className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						className="h-4 w-4 border border-border disabled:opacity-50"
 					/>
 					<span>Reduce color count</span>
 				</label>
@@ -215,7 +215,7 @@ const PngOptionsControls = memo(({ options, disabled, onChange }: PngOptionsCont
 						checked={options.preserveAlpha}
 						disabled={disabled}
 						onChange={(event) => onChange({ preserveAlpha: event.target.checked })}
-						className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						className="h-4 w-4 border border-border disabled:opacity-50"
 					/>
 					<span>Preserve transparency</span>
 				</label>
@@ -228,7 +228,7 @@ const PngOptionsControls = memo(({ options, disabled, onChange }: PngOptionsCont
 							value={options.backgroundColor}
 							disabled={disabled}
 							onChange={(event) => onChange({ backgroundColor: event.target.value })}
-							className="h-8 w-12 border border-gray-400 bg-white disabled:opacity-60"
+							className="h-8 w-12 border border-border bg-surface disabled:opacity-60"
 						/>
 					</label>
 				) : null}
@@ -239,7 +239,7 @@ const PngOptionsControls = memo(({ options, disabled, onChange }: PngOptionsCont
 						checked={options.interlaced}
 						disabled={disabled}
 						onChange={(event) => onChange({ interlaced: event.target.checked })}
-						className="h-4 w-4 border border-gray-400 disabled:opacity-50"
+						className="h-4 w-4 border border-border disabled:opacity-50"
 					/>
 					<span>Interlaced (progressive)</span>
 				</label>

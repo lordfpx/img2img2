@@ -39,8 +39,8 @@ export const FileUpload = ({ onFilesSelected, errorMessage }: FileUploadProps) =
 				onDragLeave={() => setIsDragging(false)}
 				onDrop={onDrop}
 				className={clsx(
-					"flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-gray-400 bg-white p-4 lg:p-8 text-center",
-					isDragging && "bg-gray-50",
+					"flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-border bg-surface p-4 lg:p-8 text-center text-foreground",
+					isDragging && "bg-surface-muted",
 				)}
 			>
 				<input
@@ -51,8 +51,10 @@ export const FileUpload = ({ onFilesSelected, errorMessage }: FileUploadProps) =
 					onChange={onInputChange}
 					className="hidden"
 				/>
-				<p className="text-sm text-gray-700">Drop your files here or click to browse.</p>
-				<p className="text-xs text-gray-500">
+				<p className="text-sm text-muted-foreground">
+					Drop your files here or click to browse.
+				</p>
+				<p className="text-xs text-subtle-foreground">
 					Formats supportés : jpg, png, gif, svg, webp — {formatBytes(MAX_FILE_BYTES)} max par
 					image,
 					{formatBytes(MAX_TOTAL_BYTES)} au total

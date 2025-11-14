@@ -14,8 +14,8 @@ export const ConversionProgressBar = ({
 	const percentage = Math.min(100, Math.max(0, Math.round(value * 100)));
 	if (total === 0 || (!isActive && percentage >= 100)) return null;
 	return (
-		<div className="fixed bottom-4 left-1/2 z-50 w-[min(90vw,480px)] -translate-x-1/2 rounded-full border border-white/70 bg-slate-900/80 px-4 py-3 shadow-xl backdrop-blur">
-			<div className="flex items-center justify-between text-xs font-medium text-white/80">
+		<div className="fixed bottom-4 left-1/2 z-50 w-[min(90vw,480px)] -translate-x-1/2 rounded-full border border-foreground/40 bg-surface-strong/90 px-4 py-3 shadow-xl backdrop-blur">
+			<div className="flex items-center justify-between text-xs font-medium text-foreground/80">
 				<span>Conversion</span>
 				<span className="flex items-center gap-2">
 					<span>
@@ -27,7 +27,7 @@ export const ConversionProgressBar = ({
 					</span>
 				</span>
 			</div>
-			<div className="mt-2 h-2 w-full rounded-full bg-white/20">
+			<div className="mt-2 h-2 w-full rounded-full bg-foreground/20">
 				<div
 					className="h-full rounded-full bg-emerald-400 transition-[width]"
 					style={{ width: `${percentage}%` }}

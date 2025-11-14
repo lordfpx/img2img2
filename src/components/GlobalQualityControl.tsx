@@ -41,7 +41,7 @@ export const GlobalQualityControl = ({
 					onChange={(event) => onQualityChange(Number(event.target.value))}
 					className="h-2 w-full"
 				/>
-				<span className="w-12 text-sm text-gray-600">{quality}</span>
+				<span className="w-12 text-sm text-muted-foreground">{quality}</span>
 			</div>
 		</SimpleField>
 	);
@@ -53,7 +53,7 @@ export const GlobalQualityControl = ({
 				<SimpleTitle as="h4" className="text-base">
 					GIF options
 				</SimpleTitle>
-				<div className="space-y-3 text-sm text-gray-700">
+				<div className="space-y-3 text-sm text-muted-foreground">
 					<label className="flex flex-col gap-1">
 						<span>Number of colors</span>
 						<div className="flex items-center gap-3">
@@ -79,7 +79,7 @@ export const GlobalQualityControl = ({
 									dithering: event.target.value as GifConversionOptions["dithering"],
 								})
 							}
-							className="w-full border border-gray-400 bg-white px-2 py-2 text-sm"
+							className="w-full border border-border bg-surface px-2 py-2 text-sm text-foreground transition"
 						>
 							<option value="none">None</option>
 							<option value="floyd-steinberg">Floyd-Steinberg</option>
@@ -91,7 +91,7 @@ export const GlobalQualityControl = ({
 							type="checkbox"
 							checked={gifOptions.preserveAlpha}
 							onChange={(event) => onGifOptionsChange({ preserveAlpha: event.target.checked })}
-							className="h-4 w-4 border border-gray-400"
+							className="h-4 w-4 border border-border"
 						/>
 						<span>Preserve transparency</span>
 					</label>
@@ -103,7 +103,7 @@ export const GlobalQualityControl = ({
 								type="color"
 								value={gifOptions.backgroundColor}
 								onChange={(event) => onGifOptionsChange({ backgroundColor: event.target.value })}
-								className="h-8 w-12 border border-gray-400 bg-white"
+								className="h-8 w-12 border border-border bg-surface"
 							/>
 						</label>
 					) : null}
@@ -115,7 +115,7 @@ export const GlobalQualityControl = ({
 							min={-1}
 							value={gifOptions.loopCount}
 							onChange={(event) => onGifOptionsChange({ loopCount: Number(event.target.value) })}
-							className="w-full border border-gray-400 px-2 py-2 text-sm"
+							className="w-full border border-border px-2 py-2 text-sm text-foreground transition"
 						/>
 					</label>
 				</div>
@@ -130,13 +130,13 @@ export const GlobalQualityControl = ({
 				<SimpleTitle as="h4" className="text-base">
 					PNG options
 				</SimpleTitle>
-				<div className="space-y-3 text-sm text-gray-700">
+				<div className="space-y-3 text-sm text-muted-foreground">
 					<label className="flex items-center gap-2">
 						<input
 							type="checkbox"
 							checked={pngOptions.reduceColors}
 							onChange={(event) => onPngOptionsChange({ reduceColors: event.target.checked })}
-							className="h-4 w-4 border border-gray-400"
+							className="h-4 w-4 border border-border"
 						/>
 						<span>Reduce color count</span>
 					</label>
@@ -163,7 +163,7 @@ export const GlobalQualityControl = ({
 							type="checkbox"
 							checked={pngOptions.preserveAlpha}
 							onChange={(event) => onPngOptionsChange({ preserveAlpha: event.target.checked })}
-							className="h-4 w-4 border border-gray-400"
+							className="h-4 w-4 border border-border"
 						/>
 						<span>Preserve transparency</span>
 					</label>
@@ -175,7 +175,7 @@ export const GlobalQualityControl = ({
 								type="color"
 								value={pngOptions.backgroundColor}
 								onChange={(event) => onPngOptionsChange({ backgroundColor: event.target.value })}
-								className="h-8 w-12 border border-gray-400 bg-white"
+								className="h-8 w-12 border border-border bg-surface"
 							/>
 						</label>
 					) : null}
@@ -185,7 +185,7 @@ export const GlobalQualityControl = ({
 							type="checkbox"
 							checked={pngOptions.interlaced}
 							onChange={(event) => onPngOptionsChange({ interlaced: event.target.checked })}
-							className="h-4 w-4 border border-gray-400"
+							className="h-4 w-4 border border-border"
 						/>
 						<span>Interlaced (progressive)</span>
 					</label>
@@ -209,7 +209,7 @@ export const GlobalQualityControl = ({
 					<select
 						value={format}
 						onChange={(event) => onFormatChange(event.target.value as OutputFormat)}
-						className="w-full border border-gray-400 bg-white px-2 py-2 text-sm"
+						className="w-full border border-border bg-surface px-2 py-2 text-sm text-foreground transition"
 					>
 						{formatOptions.map((option) => (
 							<option key={option.value} value={option.value}>
