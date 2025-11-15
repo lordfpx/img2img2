@@ -47,7 +47,9 @@ export const ComparePreview = memo(
 
 					<div className="pointer-events-none absolute inset-0 flex items-start justify-between text-xs md:text-s text-muted-foreground">
 						<span className="bg-surface-muted px-2 py-1 backdrop-blur-sm opacity-70">Original</span>
-						<span className="bg-surface-muted px-2 py-1 backdrop-blur-sm opacity-70">Converted</span>
+						<span className="bg-surface-muted px-2 py-1 backdrop-blur-sm opacity-70">
+							Converted
+						</span>
 					</div>
 				</div>
 				<input

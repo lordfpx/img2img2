@@ -137,9 +137,7 @@ const ConversionItemComponent = ({
 		<SimpleBlock className="ConversionItem space-y-4">
 			<div className="mx-auto max-w-6xl flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 				<div className="space-y-1 flex gap-2 items-start w-full">
-					<SimpleTitle as="h3">
-						{item.file.name}
-					</SimpleTitle>
+					<SimpleTitle as="h3">{item.file.name}</SimpleTitle>
 
 					<div className="ml-auto flex gap-2">
 						<SimpleButton

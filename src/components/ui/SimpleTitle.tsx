@@ -9,7 +9,12 @@ interface SimpleTitleProps {
 
 export const SimpleTitle = ({ children, as: Component = "h2", className }: SimpleTitleProps) => {
 	return (
-		<Component className={clsx("font-bold text-foreground", className, {"text-xl": Component === "h2", "text-l": Component === "h3"})}>
+		<Component
+			className={clsx("font-bold text-foreground", className, {
+				"text-xl": Component === "h2",
+				"text-l": Component === "h3",
+			})}
+		>
 			{children}
 		</Component>
 	);

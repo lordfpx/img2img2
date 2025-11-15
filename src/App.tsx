@@ -64,9 +64,9 @@ const App = () => {
 
 			<main className="flex flex-1 flex-col gap-4 mb-6">
 				<div className="mx-auto max-w-5xl px-2 py-2 md:py-4 lg:py-6 w-full flex flex-col gap-2 md:gap-4 lg:gap-6">
-					<p className="text-foreground">
-						This application will help you convert images between different formats and visualize
-						the differences.
+					<p className="text-foreground text-center">
+						This application converts images between different formats and allows you to compare
+						before and after conversion.
 					</p>
 
 					<div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-6">

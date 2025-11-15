@@ -33,7 +33,9 @@ export const ConversionList = ({
 	if (items.length === 0) {
 		return (
 			<SimpleBlock className="ConversionList mb-4">
-				<p className="text-sm text-muted-foreground">Upload an image to start the conversion.</p>
+				<p className="text-sm text-muted-foreground text-center font-bold">
+					Upload an image to start the conversion.
+				</p>
 			</SimpleBlock>
 		);
 	}
