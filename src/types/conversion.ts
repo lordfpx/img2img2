@@ -22,6 +22,7 @@ export interface ConversionItem {
 	compareSplit: number;
 	width?: number;
 	height?: number;
+	version: number;
 }
 
 export const formatOptions: { value: OutputFormat; label: string }[] = [

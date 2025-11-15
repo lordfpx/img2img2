@@ -85,6 +85,7 @@ const ConversionItemComponent = ({
 	);
 
 	const [qualityDraft, setQualityDraft] = useState(item.quality);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
 	useEffect(() => {
 		setQualityDraft(item.quality);
@@ -102,6 +103,18 @@ const ConversionItemComponent = ({
 	const handleQualityInputChange = useCallback((value: number) => {
 		setQualityDraft(value);
 	}, []);
+
+	useEffect(() => {
+		if (!item.convertedBlob) {
+			setPreviewUrl(null);
+			return;
+		}
+		const url = URL.createObjectURL(item.convertedBlob);
+		setPreviewUrl(url);
+		return () => {
+			URL.revokeObjectURL(url);
+		};
+	}, [item.convertedBlob]);
 
 	const updateGifOptions = useCallback(
 		(options: Partial<GifConversionOptions>) => onGifOptionsChange(item.id, options),
@@ -199,7 +212,7 @@ const ConversionItemComponent = ({
 
 			<ComparePreview
 				originalUrl={item.originalUrl}
-				convertedUrl={item.convertedUrl}
+				convertedUrl={previewUrl}
 				compareSplit={item.compareSplit}
 				status={item.status}
 				error={item.error}

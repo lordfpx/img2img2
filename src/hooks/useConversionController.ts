@@ -90,6 +90,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 	}, [releaseResources]);
 
 	const runConversion = useCallback(async (job: ConversionItem) => {
+		const jobVersion = job.version;
 		try {
 			const result = await convertImage(
 				job.file,
@@ -99,12 +100,15 @@ export const useConversionController = (): UseConversionControllerResult => {
 						? { format: "png", options: job.pngOptions }
 						: { format: job.targetFormat, quality: job.quality },
 			);
+			let applied = false;
 			setItems((prev) =>
 				prev.map((item) => {
 					if (item.id !== job.id) return item;
+					if (item.version !== jobVersion) return item;
 					if (item.convertedUrl && item.convertedUrl !== result.url) {
 						URL.revokeObjectURL(item.convertedUrl);
 					}
+					applied = true;
 					return {
 						...item,
 						convertedBlob: result.blob,
@@ -115,11 +119,14 @@ export const useConversionController = (): UseConversionControllerResult => {
 					};
 				}),
 			);
+			if (!applied) {
+				URL.revokeObjectURL(result.url);
+			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Conversion failed.";
 			setItems((prev) =>
 				prev.map((item) =>
-					item.id === job.id
+					item.id === job.id && item.version === jobVersion
 						? {
 								...item,
 								status: "error",
@@ -155,6 +162,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 					const updated: ConversionItem = {
 						...item,
 						...patch,
+						version: item.version + 1,
 						status: "processing",
 						error: undefined,
 					};
@@ -206,6 +214,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 					pngOptions: clonePngOptions(globalPngOptions),
 					status: "processing",
 					compareSplit: 50,
+					version: 1,
 				};
 				additions.push(job);
 				runningTotal += file.size;
@@ -348,6 +357,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 					const updated: ConversionItem = {
 						...item,
 						quality: value,
+						version: item.version + 1,
 						status: "processing",
 						error: undefined,
 					};
@@ -370,6 +380,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 						const updated: ConversionItem = {
 							...item,
 							gifOptions: cloneGifOptions(next),
+							version: item.version + 1,
 							status: "processing",
 							error: undefined,
 						};
@@ -393,6 +404,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 						const updated: ConversionItem = {
 							...item,
 							pngOptions: clonePngOptions(next),
+							version: item.version + 1,
 							status: "processing",
 							error: undefined,
 						};
@@ -420,6 +432,7 @@ export const useConversionController = (): UseConversionControllerResult => {
 						quality: nextQuality,
 						usesGlobalFormat: true,
 						usesGlobalQuality,
+						version: item.version + 1,
 						status: "processing",
 						error: undefined,
 						gifOptions: format === "gif" ? cloneGifOptions(globalGifOptions) : item.gifOptions,
