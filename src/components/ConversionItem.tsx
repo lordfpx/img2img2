@@ -120,6 +120,8 @@ const ConversionItemComponent = ({
 
 	const handleRemove = useCallback(() => onRemove(item.id), [item.id, onRemove]);
 
+	const canDownload = Boolean(item.convertedBlob);
+
 	const handleDownload = useCallback(() => {
 		if (!item.convertedBlob) return;
 		const link = document.createElement("a");
@@ -132,31 +134,41 @@ const ConversionItemComponent = ({
 	}, [item.convertedBlob, item.file.name, item.targetFormat]);
 
 	return (
-		<SimpleBlock className="space-y-4">
-			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+		<SimpleBlock className="ConversionItem space-y-4">
+			<div className="mx-auto max-w-6xl flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 				<div className="space-y-1 flex gap-2 items-start w-full">
-					<SimpleTitle as="h3" className="text-xl">
+					<SimpleTitle as="h3">
 						{item.file.name}
 					</SimpleTitle>
-					<SimpleButton onClick={handleRemove} variant="outline" className="ml-auto">
-						&times;
-						<span className="sr-only">Remove</span>
-					</SimpleButton>
+
+					<div className="ml-auto flex gap-2">
+						<SimpleButton
+							disabled={!canDownload}
+							onClick={handleDownload}
+							className={!canDownload ? "cursor-not-allowed opacity-50" : undefined}
+						>
+							Export
+						</SimpleButton>
+						<SimpleButton onClick={handleRemove} variant="outline">
+							&times;
+							<span className="sr-only">Remove</span>
+						</SimpleButton>
+					</div>
 				</div>
 			</div>
 
-			<div className="mx-auto flex max-w-5xl flex-col gap-4">
-				<label className="flex items-center gap-2 text-xs text-muted-foreground">
-					<input
-						type="checkbox"
-						checked={usesGlobalSettings}
-						onChange={handleUseGlobalToggle}
-						className="h-4 w-4 border border-border"
-					/>
-					<b>Use default settings</b> - {globalFormatLabel}
-				</label>
+			<div className="mx-auto grid max-w-6xl grid-rows-2 md:grid-rows-1 md:grid-cols-2 gap-4">
+				<div className="flex flex-col gap-4">
+					<label className="flex items-center gap-2 text-xs text-muted-foreground">
+						<input
+							type="checkbox"
+							checked={usesGlobalSettings}
+							onChange={handleUseGlobalToggle}
+							className="h-4 w-4 border border-border"
+						/>
+						<b>Use default settings</b> - {globalFormatLabel}
+					</label>
 
-				<div className="grid gap-4 md:grid-cols-2">
 					<FormatSelector
 						value={item.targetFormat}
 						disabled={formatDisabled}
@@ -174,17 +186,6 @@ const ConversionItemComponent = ({
 						onPngOptionsChange={updatePngOptions}
 					/>
 				</div>
-			</div>
-
-			<div className="flex flex-col gap-4">
-				<ComparePreview
-					originalUrl={item.originalUrl}
-					convertedUrl={item.convertedUrl}
-					compareSplit={item.compareSplit}
-					status={item.status}
-					error={item.error}
-					onSplitChange={handleSplitSlider}
-				/>
 
 				<ItemStats
 					fileType={item.file.type || "Auto"}
@@ -195,10 +196,17 @@ const ConversionItemComponent = ({
 					convertedSize={convertedSize}
 					delta={delta}
 					gainRatio={gainRatio}
-					canDownload={Boolean(item.convertedBlob)}
-					onDownload={handleDownload}
 				/>
 			</div>
+
+			<ComparePreview
+				originalUrl={item.originalUrl}
+				convertedUrl={item.convertedUrl}
+				compareSplit={item.compareSplit}
+				status={item.status}
+				error={item.error}
+				onSplitChange={handleSplitSlider}
+			/>
 		</SimpleBlock>
 	);
 };

@@ -20,7 +20,7 @@ export const Header = ({
 }: HeaderProps) => {
 	return (
 		<header className="border-b border-border bg-surface">
-			<div className="mx-auto max-w-5xl py-2 lg:py-4">
+			<div className="mx-auto max-w-6xl py-2 lg:py-4">
 				<SimpleBlock className="flex flex-col gap-4 border-0 bg-transparent p-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
 					<div className="flex flex-col gap-1 text-foreground">
 						<SimpleTitle as="h1" className="text-4xl">
@@ -29,17 +29,17 @@ export const Header = ({
 						<p className="text-sm text-muted-foreground">Import - Preview - Download</p>
 					</div>
 
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+					<div className="flex gap-2 flex-row items-center justify-end">
 						<ThemeSwitch />
 
 						{hasItems && (onClearAll || onDownloadAll) ? (
-							<div className="flex flex-col gap-2 sm:flex-row">
+							<div className="flex flex-row gap-2">
 								{onDownloadAll && (
 									<SimpleButton
 										onClick={onDownloadAll}
 										disabled={!hasDownloadableItems || isExporting}
 									>
-										{isExporting ? "Preparing…" : "Download all"}
+										{isExporting ? "Preparing…" : "Export all"}
 									</SimpleButton>
 								)}
 

@@ -19,8 +19,7 @@ export const SimpleButton = ({
 				{
 					"bg-accent text-accent-foreground border-accent hover:bg-accent/80":
 						variant === "default",
-					"bg-surface text-foreground border-border hover:bg-surface-muted":
-						variant === "outline",
+					"bg-surface text-foreground border-border hover:bg-surface-muted": variant === "outline",
 				},
 				className,
 			)}

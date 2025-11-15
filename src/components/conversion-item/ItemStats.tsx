@@ -1,7 +1,4 @@
-import clsx from "clsx";
 import { memo } from "react";
-
-import { SimpleButton } from "@/components/ui/SimpleButton";
 import { formatBytes } from "@/lib/utils";
 
 interface ItemStatsProps {
@@ -13,8 +10,6 @@ interface ItemStatsProps {
 	convertedSize: number | null;
 	delta: number | null;
 	gainRatio: number | null;
-	canDownload: boolean;
-	onDownload: () => void;
 }
 
 export const ItemStats = memo(
@@ -27,11 +22,9 @@ export const ItemStats = memo(
 		convertedSize,
 		delta,
 		gainRatio,
-		canDownload,
-		onDownload,
 	}: ItemStatsProps) => (
-		<div className="flex w-full flex-row gap-3 justify-center md:justify-end items-center">
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-x-3 md:gap-x-6 gap-y-1 border border-border bg-surface p-2 md:p-3 text-sm text-muted-foreground">
+		<div className="w-full border border-border bg-surface p-2 md:p-3 text-sm text-muted-foreground">
+			<div className="grid grid-cols-1 md:grid-cols-1 gap-x-3 md:gap-x-6 gap-y-1">
 				<div className="flex justify-between gap-4 md:gap-4">
 					<span>Source format</span>
 					<span className="font-bold text-foreground">{fileType}</span>
@@ -51,9 +44,7 @@ export const ItemStats = memo(
 
 				<div className="flex justify-between gap-4 md:gap-5">
 					<span>Original size</span>
-					<span className="font-bold text-foreground">
-						{formatBytes(originalSize)}
-					</span>
+					<span className="font-bold text-foreground">{formatBytes(originalSize)}</span>
 				</div>
 
 				<div className="flex justify-between gap-4 md:gap-5">
@@ -72,14 +63,6 @@ export const ItemStats = memo(
 					</div>
 				) : null}
 			</div>
-
-			<SimpleButton
-				disabled={!canDownload}
-				onClick={onDownload}
-				className={clsx("text-center", !canDownload && "cursor-not-allowed opacity-50")}
-			>
-				Download
-			</SimpleButton>
 		</div>
 	),
 );

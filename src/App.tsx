@@ -70,6 +70,8 @@ const App = () => {
 					</p>
 
 					<div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-6">
+						<FileUpload onFilesSelected={handleFiles} errorMessage={uploadError} />
+
 						<GlobalQualityControl
 							format={globalFormat}
 							onFormatChange={handleGlobalFormatChange}
@@ -80,8 +82,6 @@ const App = () => {
 							onGifOptionsChange={handleGlobalGifOptionsChange}
 							onPngOptionsChange={handleGlobalPngOptionsChange}
 						/>
-
-						<FileUpload onFilesSelected={handleFiles} errorMessage={uploadError} />
 					</div>
 
 					<ConversionStats

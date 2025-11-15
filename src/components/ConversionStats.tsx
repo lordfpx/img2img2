@@ -22,27 +22,19 @@ export const ConversionStats = ({
 			<div className="grid gap-2 grid-cols-4">
 				<div className="border border-border bg-surface p-1 md:p-3">
 					<p className="text-xs uppercase text-subtle-foreground">Original</p>
-					<p className="text-base font-medium text-foreground">
-						{formatBytes(originalTotal)}
-					</p>
+					<p className="text-base font-medium text-foreground">{formatBytes(originalTotal)}</p>
 				</div>
 				<div className="border border-border bg-surface p-1 md:p-3">
 					<p className="text-xs uppercase text-subtle-foreground">Converted</p>
-					<p className="text-base font-medium text-foreground">
-						{formatBytes(convertedTotal)}
-					</p>
+					<p className="text-base font-medium text-foreground">{formatBytes(convertedTotal)}</p>
 				</div>
 				<div className="border border-border bg-surface p-1 md:p-3">
 					<p className="text-xs uppercase text-subtle-foreground">Savings</p>
-					<p className="text-base font-medium text-foreground">
-						{formatBytes(delta)}
-					</p>
+					<p className="text-base font-medium text-foreground">{formatBytes(delta)}</p>
 				</div>
 				<div className="border border-border bg-surface p-1 md:p-3">
 					<p className="text-xs uppercase text-subtle-foreground">Average reduction</p>
-					<p className="text-base font-medium text-foreground">
-						{ratio.toFixed(1)}%
-					</p>
+					<p className="text-base font-medium text-foreground">{ratio.toFixed(1)}%</p>
 				</div>
 			</div>
 		</SimpleBlock>
